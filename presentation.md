@@ -166,7 +166,7 @@ sequenceDiagram
     Contract->>Client: 9. Return complete results
 ```
 
-The marketplace uses SOL for payments and staking with bonded economic guarantees.
+The marketplace uses USDC for payments and staking with bonded economic guarantees.
 
 ---
 
@@ -176,7 +176,7 @@ The marketplace uses SOL for payments and staking with bonded economic guarantee
 
 - **Earnings**: ~$0.10-0.50 per hour per GPU depending on task specialization
 - **Specialization**: Choose specific model components to specialize in
-- **Requirements**: Stake SOL as security deposit (slashed if dishonest)
+- **Requirements**: Stake USDC as security deposit (slashed if dishonest)
 - **Optimization**: Run multiple adjacent tasks for higher earnings
 
 **For AI Developers (Buyers):**
@@ -306,7 +306,7 @@ Demo: Partitioning LLaMA-70B for execution across consumer GPUs
 
 **For GPU Owners**:
 
-- Earn SOL by joining our compute marketplace
+- Earn USDC by joining our compute marketplace
 - Specialize in high-demand model components
 - Low barrier to entry with consumer hardware
 

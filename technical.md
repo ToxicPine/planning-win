@@ -123,7 +123,6 @@ Manages task weight availability:
 Maintains node liveness signaling:
 
 - Sends regular heartbeats to Oracle Committee
-- Reports pre-loaded weight status and capabilities
 - Monitors health of local GPU resources
 - Handles graceful shutdown and recovery
 

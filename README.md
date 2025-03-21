@@ -101,7 +101,7 @@ Our system consists of four integrated layers:
 
    - Task Executor: Uses TinyGrad for GPU execution with device-optimized machine code
    - Pre-loading System: Downloads and verifies weight files, pre-loads into GPU memory, optimizes for multi-task handling
-   - Heartbeat Service: Sends regular heartbeats to Oracle Committee, reports pre-loaded weights status
+   - Heartbeat Service: Sends regular heartbeats to Oracle Committee
 
 3. **Verification Layer** ([details in diagram 4](diagrams/4-PoSP.md))
 
