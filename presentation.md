@@ -428,6 +428,4 @@ GitHub: github.com/splitup/splitup
 
 **SplitUp: The Solana-powered Marketplace for Distributed AI Computation**
 
-Contact: team@splitup.dev
-
-[Created for the 2023 Solana Hackathon]
+[Created for a 2025 AI + Web3 Hackathon]
