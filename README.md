@@ -1,3 +1,17 @@
+THIS IS THE DRAFT README FOR WHEN WE DO THE FINAL PROJECT.
+
+I HAVE CREATED TECHNICAL DIAGRAMS TO EXPLAIN.
+
+SEE `technical.md` TO UNDERSTAND HOW THIS IS GONNA WORK.
+
+WE NEED TO SPLIT THE WORK EFFECTIVELY BETWEEN OURSELVES.
+
+SEE `roles_and_tasks.md`
+
+I ALSO CREATED DRAFT SLIDES USING MARKDOWN. SEE `presentation.md`
+
+---
+
 # SplitUp: Decentralized AI Inference on Consumer Hardware
 
 > Run any size AI model across distributed consumer GPUs with efficient verification on Solana
@@ -23,14 +37,14 @@ flowchart TD
 
 ## 🔑 Key Technical Advantages
 
-| Feature | SplitUp | Others |
-|---------|---------|--------|
-| **VRAM Distribution** | ✅ Run any size model on consumer GPUs | ❌ Limited by single node VRAM |
-| **Verification Overhead** | ✅ Only 8% overhead (PoSP) | ❌ 100%+ overhead |
-| **Memory Safety** | ✅ Tensor-only operations | ❌ Often allows arbitrary code |
-| **Hardware Compatibility** | ✅ Any GPU (NVIDIA, AMD, Intel) | ❌ Often vendor-specific |
-| **Developer Experience** | ✅ TinyGrad/PyTorch compatible | ❌ Complex custom APIs |
-| **Economic Model** | ✅ Mathematically optimal incentives | ❌ Vulnerable to dishonesty |
+| Feature                    | SplitUp                                | Others                         |
+| -------------------------- | -------------------------------------- | ------------------------------ |
+| **VRAM Distribution**      | ✅ Run any size model on consumer GPUs | ❌ Limited by single node VRAM |
+| **Verification Overhead**  | ✅ Only 8% overhead (PoSP)             | ❌ 100%+ overhead              |
+| **Memory Safety**          | ✅ Tensor-only operations              | ❌ Often allows arbitrary code |
+| **Hardware Compatibility** | ✅ Any GPU (NVIDIA, AMD, Intel)        | ❌ Often vendor-specific       |
+| **Developer Experience**   | ✅ TinyGrad/PyTorch compatible         | ❌ Complex custom APIs         |
+| **Economic Model**         | ✅ Mathematically optimal incentives   | ❌ Vulnerable to dishonesty    |
 
 ## 💻 How It Works
 
@@ -41,7 +55,7 @@ sequenceDiagram
     participant Client as AI Developer
     participant Contract as Solana Contracts
     participant Node as GPU Nodes
-    
+
     Client->>Contract: 1. Submit model & input
     Contract->>Contract: 2. Auto-partition model
     Contract->>Node: 3. Assign tasks to specialized nodes
@@ -60,7 +74,7 @@ outputs = model(input_ids)
 
 # Automatically partition for distributed execution
 partitions = auto_partition(
-    graph_program=outputs, 
+    graph_program=outputs,
     target_vram=12 * 1024 * 1024 * 1024  # 12GB target
 )
 ```
@@ -70,17 +84,20 @@ partitions = auto_partition(
 Our system consists of four integrated layers:
 
 1. **Solana Contract Layer** ([details in diagram 1](diagrams/1_deployment.md))
+
    - Model Registry: Manages model DAGs and tensor interfaces
    - Task Registry: Defines computational task requirements
    - Node Registry: Tracks node capabilities and specializations
    - Execution Contract: Orchestrates distributed inference
 
 2. **Node Execution Layer** ([details in diagram 2](diagrams/2_node-configuration.md))
+
    - Task Executor: Runs specialized model components
    - Pre-loading System: Keeps weights ready for instant execution
    - Heartbeat Service: Maintains node availability status
 
 3. **Verification Layer** ([details in diagram 4](diagrams/4-PoSP.md))
+
    - Proof of Sampling Protocol: 8% random verification
    - Economic incentives: Dishonesty becomes unprofitable
    - VRF-based validator selection: Prevents manipulation
@@ -95,22 +112,26 @@ Our system consists of four integrated layers:
 We've built a complete end-to-end prototype:
 
 1. **EigenTensor Integration**
+
    - Memory-safe tensor operations
    - TinyGrad-compatible API
    - Automatic computational graph analysis
 
 2. **Auto-Partitioning Engine**
+
    - Splits models to fit target VRAM constraints
    - Optimizes communication between partitions
    - Creates clean tensor interfaces between tasks
 
 3. **Solana Programs**
+
    - Model/Task Registry: Track model definitions and tasks
    - Node Registry: Manage compute providers
    - Execution Contract: Coordinate inference tasks
    - Verification Contract: Implement PoSP with 8% overhead
 
 4. **Node Software**
+
    - Specialization system for efficient preloading
    - Heartbeat mechanism for liveness monitoring
    - Task execution environment
@@ -143,11 +164,13 @@ Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the d
 ## 👥 Join Our Marketplace
 
 **For AI Developers**:
+
 - Run large models without expensive hardware
 - Pay only for what you use (~$0.25-1.00 per inference vs $2-8 on cloud platforms)
 - Simple, familiar API similar to centralized alternatives
 
 **For GPU Owners**:
+
 - Earn $0.10-0.50 per hour per GPU
 - Specialize in specific model components
 - No arbitrary code execution - only memory-safe operations
@@ -161,5 +184,5 @@ Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the d
 
 ---
 
-*Built for Solana Hackathon 2023*  
+_Built for Solana Hackathon 2023_  
 Contact: team@splitup.dev

@@ -35,19 +35,23 @@ Result: Consumer GPUs can collectively run models too large for any single one..
 **Built on EigenTensor's breakthrough technology:**
 
 1. **Memory Safety**: No arbitrary code execution - only memory-safe tensor operations allowed
+
    - Prevents security exploits or physical hardware damage
    - Enables trustless computation with mathematical guarantees
 
 2. **GPU Agnosticism**: Works on any consumer GPU regardless of manufacturer
+
    - NVIDIA, AMD, Intel all supported
    - Nodes compile optimized code for their specific hardware
 
 3. **Tensor-Centric Computation**: Universal format for any ML workload
+
    - Compatible with popular frameworks (PyTorch, TensorFlow models)
    - Entire models represented as computational graphs
    - TinyGrad compatible - familiar API for ML developers
 
 4. **Automatic Model Splitting**: VRAM no longer limits model size
+
    - Novel partitioning algorithm finds optimal split points
    - Memory requirements distributed across multiple nodes
    - Solves the #1 bottleneck in AI democratization
@@ -67,7 +71,7 @@ flowchart LR
     subgraph "1. Split Large Model"
         LM[Large 70B Model] --> |Partition| P1[Task 1: 12GB] & P2[Task 2: 12GB] & P3[Task 3: 12GB] & P4["..."] & P5[Task 12: 12GB]
     end
-    
+
     subgraph "2. Distribute to Specialized Nodes"
         P1 --> |Assign| N1[Node A]
         P2 --> |Assign| N2[Node B]
@@ -75,7 +79,7 @@ flowchart LR
         P4 --> |Assign| N4["..."]
         P5 --> |Assign| N5[Node L]
     end
-    
+
     subgraph "3. Execute & Verify 8%"
         N1 --> R1[Result 1]
         N2 --> R2[Result 2]
@@ -83,11 +87,11 @@ flowchart LR
         N4 --> R4["..."]
         N5 --> R5[Result 12]
     end
-    
+
     subgraph "4. Combine Results"
         R1 & R2 & R3 & R4 & R5 --> FR[Final Result]
     end
-    
+
     style LM fill:#ff9999
     style FR fill:#99ff99
     style N1 fill:#9999ff
@@ -106,24 +110,24 @@ flowchart LR
 def create_llama_task(context: TensorContext) -> GraphProgram:
     # Define placeholder tensors for token embeddings
     input_ids = context.add_graph_input("input_ids", (1, max_seq_len))
-    
+
     # Load model architecture (weights handled separately)
     model = LLaMAModel(config)
-    
+
     # Define forward pass (automatically builds computational graph)
     outputs = model(input_ids)
-    
+
     # Compile to universal tensor graph format
     return context.compile_to_graph(outputs)
 
 # Auto-partition the model for distributed execution
 def auto_partition(
-    graph_program: GraphProgram, 
+    graph_program: GraphProgram,
     target_vram: int
 ) -> list[SolanaTaskDefinition]:
     # Analyze model memory requirements and dependencies
     partitions = split_graph_by_memory_constraints(graph_program, target_vram)
-    
+
     # Define clean interfaces between partitions
     task_definitions = []
     for partition in partitions:
@@ -135,7 +139,7 @@ def auto_partition(
             output_interfaces=define_output_interfaces(partition)
         )
         task_definitions.append(task_definition)
-    
+
     return task_definitions
 ```
 
@@ -150,7 +154,7 @@ sequenceDiagram
     participant Client as AI Developer
     participant Contract as Solana Smart Contracts
     participant Node as GPU Node Operators
-    
+
     Client->>Contract: 1. Post Job (model, input, maxFee)
     Contract->>Contract: 2. Calculate optimal task division
     Contract->>Node: 3. Offer tasks to specialized nodes
@@ -169,12 +173,14 @@ The marketplace uses SOL for payments and staking with bonded economic guarantee
 ## Market Dynamics & Incentives
 
 **For GPU Owners (Sellers):**
+
 - **Earnings**: ~$0.10-0.50 per hour per GPU depending on task specialization
 - **Specialization**: Choose specific model components to specialize in
 - **Requirements**: Stake SOL as security deposit (slashed if dishonest)
 - **Optimization**: Run multiple adjacent tasks for higher earnings
 
 **For AI Developers (Buyers):**
+
 - **Access**: Run 70B+ models without specialized hardware
 - **Cost**: Pay only for compute used (~$0.25-1.00 per inference)
 - **Interface**: Simple API similar to centralized alternatives
@@ -184,26 +190,28 @@ The marketplace uses SOL for payments and staking with bonded economic guarantee
 
 ## Comparison: What Makes Us Unique
 
-| Feature | SplitUp | Other Decentralized |
-|---------|---------|---------------------|
-| **Large Model Support** | ✓ Any size via partitioning | ✗ Limited by node VRAM |
-| **Memory Safety** | ✓ Only tensor operations | ✓ Limited operations |
-| **GPU Agnosticism** | ✓ Any GPU hardware | ✗ Often specific GPUs |
-| **Model Splitting** | ✓ Automatic partitioning | ✗ Not supported |
-| **Verification Overhead** | ✓ Just 8% (PoSP) | ~ Larger overheads |
-| **Marketplace Model** | ✓ Open on Solana | ✓ Limited efficiency |
-| **Flexibility** | ✓ Any tensor DAG via TinyGrad | ✗ Limited model types |
-| **Developer Experience** | ✓ TinyGrad compatible | ✗ Complex custom APIs |
+| Feature                   | SplitUp                       | Other Decentralized    |
+| ------------------------- | ----------------------------- | ---------------------- |
+| **Large Model Support**   | ✓ Any size via partitioning   | ✗ Limited by node VRAM |
+| **Memory Safety**         | ✓ Only tensor operations      | ✓ Limited operations   |
+| **GPU Agnosticism**       | ✓ Any GPU hardware            | ✗ Often specific GPUs  |
+| **Model Splitting**       | ✓ Automatic partitioning      | ✗ Not supported        |
+| **Verification Overhead** | ✓ Just 8% (PoSP)              | ~ Larger overheads     |
+| **Marketplace Model**     | ✓ Open on Solana              | ✓ Limited efficiency   |
+| **Flexibility**           | ✓ Any tensor DAG via TinyGrad | ✗ Limited model types  |
+| **Developer Experience**  | ✓ TinyGrad compatible         | ✗ Complex custom APIs  |
 
 ---
 
 ## Concrete Example: Running LLaMA-70B on SplitUp
 
 **Traditional Approach:**
+
 - Requires A100 GPU (~$10,000) or cloud instance ($2-8/hour)
 - VRAM limitation forces expensive hardware choices
 
 **SplitUp Approach:**
+
 - Model automatically partitioned into 12 tasks of ~12GB each
 - Memory-safe task definitions registered on Solana
 - Tasks distributed to specialized nodes (RTX 3060+ GPUs)
@@ -226,30 +234,30 @@ flowchart TD
         VR[Verification]
         SM[Staking Management]
     end
-    
+
     subgraph "EigenTensor Layer"
         GC[Graph Compiler]
         SP[Splitting Engine]
         MS[Memory Safety]
     end
-    
+
     subgraph "Node Software"
         TE[Task Executor]
         PS[Pre-loading System]
         HS[Heartbeat Service]
     end
-    
+
     subgraph "Client Interfaces"
         DC[Developer Console]
         MC[Model Conversion]
         NM[Node Management]
     end
-    
+
     subgraph "Storage"
         WS[Weight Storage]
         TS[Tensor Storage]
     end
-    
+
     Client[AI Developer] --> DC
     NodeOp[GPU Owner] --> NM
     DC --> GC
@@ -291,11 +299,13 @@ Demo: Partitioning LLaMA-70B for execution across consumer GPUs
 ## Join Our Marketplace
 
 **For AI Developers**:
+
 - Access large models without expensive hardware
 - Pay only for what you use, no upfront costs
 - Simple API for model execution
 
 **For GPU Owners**:
+
 - Earn SOL by joining our compute marketplace
 - Specialize in high-demand model components
 - Low barrier to entry with consumer hardware

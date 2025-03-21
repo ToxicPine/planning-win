@@ -196,7 +196,7 @@ Provides task submission and monitoring:
 ```
 struct TensorSpec {
     string name;                // Tensor name
-    string[] dimensions;        // Symbolic dimensions 
+    string[] dimensions;        // Symbolic dimensions
     uint256[] shape;            // Concrete shape if known
     string dtype;               // Data type
 }
@@ -237,7 +237,6 @@ struct TaskInfo {
 ```
 
 Note: Each task represents a deterministic execution graph with a fixed number of GPU operations. The `computeUnits` field provides a standardized measure of computational complexity, enabling fixed and predictable pricing. This is possible because each task in the model, executed by TinyGrad, is also structured as a DAGs: the computations are sequential and not turing-complete, so they terminate after a fixed number of steps.
-
 
 ### 7.3 Node Specification
 
