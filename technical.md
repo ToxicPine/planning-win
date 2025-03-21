@@ -215,7 +215,6 @@ struct ModelInfo {
     address owner;
     uint256[] taskIds;
     TaskConnection[] connections;
-    uint256 totalVramRequired;
     bool isActive;
 }
 ```
@@ -243,16 +242,13 @@ Note: Each task represents a deterministic execution graph with a fixed number o
 struct SupportedInterface {
     uint256 modelId;
     uint256 taskId;
-    bool isPreloaded;
 }
 
 struct NodeInfo {
     address owner;
     uint256 vramCapacity;
-    uint256 maxTasksPerExecution;
     uint256 stakeAmount;
     SupportedInterface[] supportedInterfaces;
-    bool isOnline;
     uint256 lastHeartbeat;
 }
 ```

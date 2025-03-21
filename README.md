@@ -182,5 +182,5 @@ Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the d
 
 ---
 
-_Built for Solana Hackathon 2023_  
+_Built for AI Web3 Hackathon 2025_  
 Contact: team@splitup.dev
