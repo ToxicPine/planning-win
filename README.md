@@ -4,6 +4,7 @@ I HAVE CREATED TECHNICAL DIAGRAMS TO EXPLAIN.
 
 SEE [`concrete_plans/explanation.md`](concrete_plans/explanation.md) TO UNDERSTAND HOW THIS IS GONNA WORK.
 THERE IS ALSO A `technical_summary.md`, WHICH MAY BE HELPFUL.
+IMO, FOR YOUR UNDERSTANDING, [`concrete_plans/explanation.md`](concrete_plans/explanation.md) >>> `technical_summary.md`
 
 WE NEED TO SPLIT THE WORK EFFECTIVELY BETWEEN OURSELVES.
 
