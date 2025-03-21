@@ -2,7 +2,7 @@ THIS IS THE DRAFT README FOR WHEN WE DO THE FINAL PROJECT.
 
 I HAVE CREATED TECHNICAL DIAGRAMS TO EXPLAIN.
 
-SEE `concrete_plans/explanation.md` TO UNDERSTAND HOW THIS IS GONNA WORK.
+SEE [`concrete_plans/explanation.md`](concrete_plans/explanation.md) TO UNDERSTAND HOW THIS IS GONNA WORK.
 THERE IS ALSO A `technical_summary.md`, WHICH MAY BE HELPFUL.
 
 WE NEED TO SPLIT THE WORK EFFECTIVELY BETWEEN OURSELVES.
@@ -21,7 +21,7 @@ I ALSO CREATED DRAFT SLIDES USING MARKDOWN. SEE `presentation.md`
 
 Modern AI models like LLaMA-70B require 80-140GB VRAM, but consumer GPUs only have 8-24GB. Current solutions force centralization or expensive hardware. Verification adds 100%+ overhead in traditional decentralized systems.
 
-SplitUp solves this with automatic model partitioning and our Proof of Sampling Protocol (PoSP) with just 8% verification overhead.
+SplitUp solves this with automatic model partitioning and our [Proof of Sampling Protocol (PoSP)](concrete_plans/smart_contracts/proof_of_sampling.md) with just 8% verification overhead.
 
 ```mermaid
 flowchart LR
@@ -89,24 +89,24 @@ partitions = auto_partition(
 
 Our system consists of four integrated layers:
 
-1. **Solana Contract Layer** ([details in diagram 1](diagrams/1_deployment.md))
+1. **[Solana Contract Layer](concrete_plans/smart_contracts/index.md)**
 
    - Model Registry: Stores model metadata, the structure of it's computational DAG (made up of "tasks"), and it's tensor interfaces
    - Task Registry: Specifies input and output tensor interfaces for each task, VRAM requirements, and weight file locations
    - Node Registry: Tracks specializations, stake amounts, etc
    - Model Execution Contract: Assigns tasks based on optimal allocation, tracks execution state, and handles result aggregation
-   - Verification Contract: Implements PoSP consensus with VRF for 8% random verification
+   - [Verification Contract](concrete_plans/smart_contracts/proof_of_sampling.md): Implements PoSP consensus with VRF for 8% random verification
    - Staking Contract: Manages deposits, withdrawals, and slashing conditions
 
-2. **Node Execution Layer** ([details in diagram 2](diagrams/2_node-configuration.md))
+2. **[Node Execution Layer](concrete_plans/compute_client/index.md)**
 
-   - Task Executor: Uses TinyGrad for GPU execution with device-optimized machine code
+   - [Task Executor](concrete_plans/compute_client/task_completion.md): Uses TinyGrad for GPU execution with device-optimized machine code
    - Pre-loading System: Downloads and verifies weight files, pre-loads into GPU memory, optimizes for multi-task handling
-   - Heartbeat Service: Sends regular heartbeats to Oracle Committee
+   - [Heartbeat Service](concrete_plans/heartbeat/oracle_server.md): Sends regular heartbeats to Oracle Committee
 
-3. **Verification Layer** ([details in diagram 4](diagrams/4-PoSP.md))
+3. **Verification Layer**
 
-   - Proof of Sampling Protocol: 8% random verification
+   - [Proof of Sampling Protocol](concrete_plans/smart_contracts/proof_of_sampling.md): 8% random verification
    - Economic incentives: Dishonesty becomes unprofitable
    - VRF-based validator selection: Prevents manipulation
 
@@ -117,7 +117,7 @@ Our system consists of four integrated layers:
    - Tensor Data: Handles intermediate results with automatic garbage collection and efficient serialization
 
 5. **Client Interface Layer**
-   - Model Deployment CLI: Analyzes model structure for optimal partitioning, creates task definitions, uploads weight files
+   - [Model Deployment CLI](concrete_plans/model_deployment/index.md): Analyzes model structure for optimal partitioning, creates task definitions, uploads weight files
    - Node Management CLI: Registers node capabilities, manages stake deposits and withdrawals, monitors performance
 
 ## 🛠️ Hackathon Deliverables
@@ -130,13 +130,13 @@ We've built a complete end-to-end prototype:
    - TinyGrad-compatible API
    - Automatic computational graph analysis
 
-2. **Auto-Partitioning Engine**
+2. **[Auto-Partitioning Engine](concrete_plans/model_deployment/index.md)**
 
    - Splits models to fit target VRAM constraints
    - Optimizes communication between partitions
    - Creates clean tensor interfaces between tasks
 
-3. **Solana Programs**
+3. **[Solana Programs](concrete_plans/smart_contracts/index.md)**
 
    - Model and Task Registry: Track model definitions and tasks
    - Node Registry: Register ML compute nodes
@@ -156,7 +156,7 @@ We've built a complete end-to-end prototype:
 
 ## 🔐 Security & Economics
 
-Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the dominant strategy:
+Our [Proof of Sampling Protocol](concrete_plans/smart_contracts/proof_of_sampling.md) creates a Nash equilibrium where honesty is the dominant strategy:
 
 - Only 8% of work gets verified (vs traditional 100%+ overhead)
 - Verification reward: 1.2× computation cost
@@ -176,10 +176,11 @@ Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the d
 
 ## 📚 Learn More
 
-- [Full Technical Explanation](technical.md)
+- [Full Technical Explanation](concrete_plans/explanation.md)
 - [Comprehensive Presentation](presentation.md)
 - [Execution Flow Diagram](diagrams/3.md)
 - [Model Partitioning Diagram](diagrams/1.md)
+- [Heartbeat Oracle System](concrete_plans/heartbeat_oracle/index.md)
 
 ---
 
