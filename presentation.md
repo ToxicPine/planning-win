@@ -32,23 +32,23 @@ Result: Consumer GPUs can collectively run models too large for any single one..
 
 ## Why SplitUp is Special: Technical Advantages
 
-**Built on EigenTensor's breakthrough technology:**
+**Built on EigenTensor**
 
-1. **Memory Safety**: No arbitrary code execution - only memory-safe tensor operations allowed
-
-   - Prevents security exploits or physical hardware damage
-   - Enables trustless computation with mathematical guarantees
-
-2. **GPU Agnosticism**: Works on any consumer GPU regardless of manufacturer
-
-   - NVIDIA, AMD, Intel all supported
-   - Nodes compile optimized code for their specific hardware
-
-3. **Tensor-Centric Computation**: Universal format for any ML workload
+1. **Tensor-Centric Computation**: Universal format for any ML workload
 
    - Compatible with popular frameworks (PyTorch, TensorFlow models)
    - Entire models represented as computational graphs
    - TinyGrad compatible - familiar API for ML developers
+
+2. **Memory Safety**: No arbitrary code execution - only memory-safe tensor operations allowed
+
+   - Prevents security exploits or physical hardware damage
+   - Enables trustless computation with mathematical guarantees
+
+3. **GPU Agnosticism**: Works on any consumer GPU regardless of manufacturer
+
+   - NVIDIA, AMD, Intel all supported
+   - Nodes compile optimized code for their specific hardware
 
 4. **Automatic Model Splitting**: VRAM no longer limits model size
 
@@ -56,7 +56,9 @@ Result: Consumer GPUs can collectively run models too large for any single one..
    - Memory requirements distributed across multiple nodes
    - Solves the #1 bottleneck in AI democratization
 
-5. **Efficient Verification**: Only 8% of work needs verification
+**Uses Proof of Sampling Protocol (PoSP)**
+
+1. **Efficient Verification**: Only 8% of work needs verification
    - Proof of Sampling Protocol vs traditional 100%+ overhead
    - Economic incentives make honesty more profitable than cheating
 
@@ -238,7 +240,6 @@ flowchart TD
     subgraph "EigenTensor Layer"
         GC[Graph Compiler]
         SP[Splitting Engine]
-        MS[Memory Safety]
     end
 
     subgraph "Node Software"
@@ -277,7 +278,6 @@ flowchart TD
     HS --> NR
     SP --> MR
     SP --> TR
-    MS --> TE
 ```
 
 ---

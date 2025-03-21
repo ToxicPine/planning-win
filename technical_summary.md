@@ -1,4 +1,4 @@
-# SplitUp: Technical Specification Document
+# SplitUp: Brief Technical Summary
 
 ## 1. Executive Summary
 

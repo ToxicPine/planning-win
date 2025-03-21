@@ -8,3 +8,5 @@
 # Tasks
 
 MUST BE SPLIT AFTER TECHNICAL DECISIONS ARE MADE MORE CLEARLY.
+
+We should probably split according to the sub-directories defined in `concrete_plans/directories.md`

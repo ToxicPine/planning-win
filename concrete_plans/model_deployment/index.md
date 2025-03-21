@@ -13,30 +13,57 @@ The SplitUp Model Deployment system enables model developers to:
 5. Create an immutable model DAG structure on the blockchain
 
 ```mermaid
-graph TD
-    subgraph "Model Developer Environment"
-        CLI[Deploy CLI]
-        TC[TensorContext]
+flowchart TD
+    %% Client actors
+    Client[Client]
+    
+    %% Data objects with special shapes
+    RawModel[/Raw Model File/]
+    ModelParts{{Model Partitions}}
+    TaskDefs[/Task Definitions/]
+    Weights[(Model Weights)]
+    TaskReg[[Task Registry Entry]]
+    ModelReg[[Model Registry Entry]]
+    
+    %% Model deployment tools
+    subgraph "Model Deployment"
+        DC[Deploy CLI]
         AP[Auto-Partitioner]
+        TC[TensorContext]
     end
-
-    subgraph "Storage Layer"
-        DS[Decentralized Storage]
-    end
-
+    
+    %% Blockchain contracts
     subgraph "Blockchain Layer"
-        MR[Model Registry Contract]
-        TR[Task Registry Contract]
+        MR[Model Registry]
+        TR[Task Registry]
     end
-
-    CLI <--> TC
-    CLI <--> AP
-    CLI --> DS
-    DS --> CLI
-    CLI --> TR
-    TR --> CLI
-    CLI --> MR
-    MR --> CLI
+    
+    %% Storage
+    subgraph "Storage Layer"
+        WS[(Weight Storage)]
+    end
+    
+    %% MODEL DEPLOYMENT FLOW (RED)
+    Client -->|"Deploy model"| RawModel
+    RawModel -->|"Upload"| DC
+    DC -->|"1 - Parse Model"| TC
+    TC -->|"2 - Create Partitions"| AP
+    AP -->|"Generated"| ModelParts
+    ModelParts -->|"Used for"| DC
+    DC -->|"3 - Upload Weights"| Weights
+    Weights -->|"Stored in"| WS
+    AP -->|"4 - Infer Task Definitions"| TaskDefs
+    TaskDefs -->|"Passed to"| DC
+    DC -->|"5 - Register Tasks"| TaskReg
+    TaskReg -->|"Recorded in"| TR
+    DC -->|"6 - Register Model, Referencing Tasks"| ModelReg
+    ModelReg -->|"Recorded in"| MR
+    
+    %% Style all relationships with red color
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13 stroke:#e74c3c,stroke-width:2;
+    
+    classDef redFlow fill:#e74c3c,stroke:#c0392b,color:white;
+    class ModelDeployment redFlow;
 ```
 
 ## Deployment Process
