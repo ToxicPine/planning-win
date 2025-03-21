@@ -127,7 +127,7 @@ Maintains node liveness signaling:
 - Monitors health of local GPU resources
 - Handles graceful shutdown and recovery
 
-### Specialization Manager
+### Specialization Manager (Advanced, Optional)
 
 Handles node specialization strategy:
 

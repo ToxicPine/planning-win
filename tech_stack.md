@@ -1,4 +1,10 @@
-# Tech Stack, Style Guide
+# Stack
+
+Data Availability and Storage: ???
+
+---
+
+# Style Guide
 
 ## TypeScript
 
@@ -105,8 +111,6 @@ export const ENV = {
 - Evaluate dependencies carefully.
 - Favor smaller, focused libraries (e.g., tRPC, Valibot).
 - Keep client bundles lean (Next.js code splitting, SSR).
-
----
 
 ### 7. **UI Guidelines & State Management**
 

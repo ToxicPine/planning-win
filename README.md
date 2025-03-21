@@ -23,15 +23,20 @@ Modern AI models like LLaMA-70B require 80-140GB VRAM, but consumer GPUs only ha
 SplitUp solves this with automatic model partitioning and our Proof of Sampling Protocol (PoSP) with just 8% verification overhead.
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph "The SplitUp Solution"
-        LM[Large 70B Model] --> |Auto-Partition| P1[Task 1: 12GB] & P2[Task 2: 12GB] & P3[Task 3: 12GB] & P4["..."] & P5[Task N: 12GB]
-        P1 --> |Assign| N1[Consumer GPU]
-        P2 --> |Assign| N2[Consumer GPU]
-        P3 --> |Assign| N3[Consumer GPU]
-        P4 --> |Assign| N4["..."]
-        P5 --> |Assign| N5[Consumer GPU]
-        N1 & N2 & N3 & N4 & N5 --> |Combine| FR[Final Result]
+        LM[Large 70B Model] --> |Auto-Partition| P1[Task 1: 12GB]
+        P1 --> |Intermediate Result| P2[Task 2: 12GB]
+        P2 --> |Intermediate Result| P3[Task 3: 12GB]
+        P3 --> |Intermediate Result| P4["..."]
+        P4 --> |Intermediate Result| P5[Task N: 12GB]
+        P5 --> FR[Final Result]
+
+        P1 -.-> |Assigned to| N1[Consumer GPU 1]
+        P2 -.-> |Assigned to| N2[Consumer GPU 2]
+        P3 -.-> |Assigned to| N3[Consumer GPU 3]
+        P4 -.-> |Assigned to| N4[Consumer GPU ...]
+        P5 -.-> |Assigned to| N5[Consumer GPU N]
     end
 ```
 
@@ -43,7 +48,7 @@ flowchart TD
 | **Verification Overhead**  | ✅ Only 8% overhead (PoSP)             | ❌ 100%+ overhead              |
 | **Memory Safety**          | ✅ Tensor-only operations              | ❌ Often allows arbitrary code |
 | **Hardware Compatibility** | ✅ Any GPU (NVIDIA, AMD, Intel)        | ❌ Often vendor-specific       |
-| **Developer Experience**   | ✅ TinyGrad/PyTorch compatible         | ❌ Complex custom APIs         |
+| **Developer Experience**   | ✅ TinyGrad compatible                 | ❌ Complex custom APIs         |
 | **Economic Model**         | ✅ Mathematically optimal incentives   | ❌ Vulnerable to dishonesty    |
 
 ## 💻 How It Works
@@ -56,8 +61,8 @@ sequenceDiagram
     participant Contract as Solana Contracts
     participant Node as GPU Nodes
 
-    Client->>Contract: 1. Submit model & input
-    Contract->>Contract: 2. Auto-partition model
+    Client->>Contract: 1. Chose model, submit input
+    Contract->>Contract: 2. Pick nodes to run computation
     Contract->>Node: 3. Assign tasks to specialized nodes
     Node->>Node: 4. Execute partial computation
     Contract->>Contract: 5. Verify 8% of results randomly
@@ -85,16 +90,18 @@ Our system consists of four integrated layers:
 
 1. **Solana Contract Layer** ([details in diagram 1](diagrams/1_deployment.md))
 
-   - Model Registry: Manages model DAGs and tensor interfaces
-   - Task Registry: Defines computational task requirements
-   - Node Registry: Tracks node capabilities and specializations
-   - Execution Contract: Orchestrates distributed inference
+   - Model Registry: Stores model metadata, the structure of it's computational DAG (made up of "tasks"), and it's tensor interfaces
+   - Task Registry: Specifies input and output tensor interfaces for each task, VRAM requirements, and weight file locations
+   - Node Registry: Tracks specializations, stake amounts, etc
+   - Model Execution Contract: Assigns tasks based on optimal allocation, tracks execution state, and handles result aggregation
+   - Verification Contract: Implements PoSP consensus with VRF for 8% random verification
+   - Staking Contract: Manages deposits, withdrawals, and slashing conditions
 
 2. **Node Execution Layer** ([details in diagram 2](diagrams/2_node-configuration.md))
 
-   - Task Executor: Runs specialized model components
-   - Pre-loading System: Keeps weights ready for instant execution
-   - Heartbeat Service: Maintains node availability status
+   - Task Executor: Uses TinyGrad for GPU execution with device-optimized machine code
+   - Pre-loading System: Downloads and verifies weight files, pre-loads into GPU memory, optimizes for multi-task handling
+   - Heartbeat Service: Sends regular heartbeats to Oracle Committee, reports pre-loaded weights status
 
 3. **Verification Layer** ([details in diagram 4](diagrams/4-PoSP.md))
 
@@ -102,10 +109,15 @@ Our system consists of four integrated layers:
    - Economic incentives: Dishonesty becomes unprofitable
    - VRF-based validator selection: Prevents manipulation
 
-4. **Client Interface Layer**
-   - Model Deployment CLI: Register and partition models
-   - Node Management CLI: Operate and monitor compute nodes
-   - NextJS Developer Console: Submit jobs and monitor execution
+4. **Storage Layer**
+
+   - Model Definitions: Stores complete model specifications with DAG structure and task relationships
+   - Weight Files: Efficiently stores weights in safetensors format with standardized URI scheme
+   - Tensor Data: Handles intermediate results with automatic garbage collection and efficient serialization
+
+5. **Client Interface Layer**
+   - Model Deployment CLI: Analyzes model structure for optimal partitioning, creates task definitions, uploads weight files
+   - Node Management CLI: Registers node capabilities, manages stake deposits and withdrawals, monitors performance
 
 ## 🛠️ Hackathon Deliverables
 
@@ -125,21 +137,21 @@ We've built a complete end-to-end prototype:
 
 3. **Solana Programs**
 
-   - Model/Task Registry: Track model definitions and tasks
-   - Node Registry: Manage compute providers
-   - Execution Contract: Coordinate inference tasks
+   - Model and Task Registry: Track model definitions and tasks
+   - Node Registry: Register ML compute nodes
+   - Execution Contract: Coordinate inference tasks between nodes
    - Verification Contract: Implement PoSP with 8% overhead
 
-4. **Node Software**
+4. **Developer Tools**
 
-   - Specialization system for efficient preloading
-   - Heartbeat mechanism for liveness monitoring
-   - Task execution environment
-
-5. **Developer Tools**
    - `splitup-deploy`: For model developers to register models
    - `splitup-node`: For GPU owners to participate in marketplace
    - Web interface for job submission and monitoring
+
+5. **MNIST Demo**
+   - NextJS UI with Tailwind CSS, detect numbers drawn on canvas
+   - Interactive web demo showcasing model partitioning
+   - End-to-end flow from model submission to result visualization
 
 ## 🔐 Security & Economics
 
@@ -160,20 +172,6 @@ Our Proof of Sampling Protocol creates a Nash equilibrium where honesty is the d
 - **Optimal Assignment**: Nodes can handle multiple adjacent tasks ([diagram 9](diagrams/9.md))
 - **Parallel Execution**: Independent DAG branches execute simultaneously ([diagram 6](diagrams/6.md))
 - **Dynamic Scaling**: Execution adapts to available marketplace capacity
-
-## 👥 Join Our Marketplace
-
-**For AI Developers**:
-
-- Run large models without expensive hardware
-- Pay only for what you use (~$0.25-1.00 per inference vs $2-8 on cloud platforms)
-- Simple, familiar API similar to centralized alternatives
-
-**For GPU Owners**:
-
-- Earn $0.10-0.50 per hour per GPU
-- Specialize in specific model components
-- No arbitrary code execution - only memory-safe operations
 
 ## 📚 Learn More
 
