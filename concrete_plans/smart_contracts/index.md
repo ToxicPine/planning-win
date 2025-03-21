@@ -148,13 +148,6 @@ interface NodeRegistry {
 - Node-task specialization is fixed
 - Staking is directly tied to declared capabilities
 
-**Data Storage**:
-
-- Node capabilities and VRAM capacity
-- Fixed task specializations (immutable after registration)
-- Current liveness status (from Oracle Committee)
-- Staking and collateral information
-
 ### 4. Model Execution Contract
 
 The Model Execution contract orchestrates execution with Oracle control:
@@ -265,7 +258,6 @@ export interface NodeSpecialization {
 
 export interface NodeInfo {
   owner: string;
-  vramCapacity: number;
   stakeAmount: number;
   specializations: NodeSpecialization[];
 }
