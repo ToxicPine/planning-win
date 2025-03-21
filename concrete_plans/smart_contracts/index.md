@@ -688,13 +688,12 @@ interface NodeSelection {
 }
 
 // Signed node selection
-interface SignedNodeSelection {
+interface CommitteeSignedNodeSelection {
   selection: NodeSelection; // The node selection
   signatures: {
     // Signatures from oracles
     [oracleId: string]: string;
   };
-  threshold: number; // Required signature count
 }
 ```
 

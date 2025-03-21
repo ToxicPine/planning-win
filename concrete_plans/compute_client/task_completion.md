@@ -42,7 +42,7 @@ sequenceDiagram
     end
 
     PY->>TS: Return TaskResult
-    TS->>BC: Submit taskCompleted transaction
+    TS->>BC: reportTaskCompletion()
 ```
 
 ## Data Types Specification

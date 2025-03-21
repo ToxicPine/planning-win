@@ -1,4 +1,8 @@
+# System Flow Diagrams
+
 I've checked through, I'm pretty sure these are (approximately) correct.
+
+## Whole-System
 
 ```mermaid
 flowchart TD
@@ -164,6 +168,8 @@ flowchart TD
     class ContractRelations grayFlow;
 ```
 
+## Model Deployment
+
 ```mermaid
 flowchart TD
     %% Client actors
@@ -202,6 +208,8 @@ flowchart TD
     classDef redFlow fill:#e74c3c,stroke:#c0392b,color:white;
     class ModelDeployment redFlow;
 ```
+
+## Node Setup
 
 ```mermaid
 flowchart TD
@@ -248,6 +256,36 @@ flowchart TD
     class NodeRegistration greenFlow;
 ```
 
+## Liveness Tracking System
+
+Informs the Oracle Committee as to which nodes it should pick to perform the task.
+
+```mermaid
+flowchart TD
+    %% Oracle Committee
+    subgraph "Oracle Committee"
+        OC[Oracle Consensus]
+    end
+    
+    %% Node components
+    subgraph "SplitUp Node"
+        CS[Compute Service]
+        HS[Heartbeat Service]
+    end
+    
+    %% HEARTBEAT/LIVENESS FLOW (ORANGE)
+    HS <-->|"1 - Report Capacity"| CS
+    HS -->|"2 - Send Heartbeats"| OC
+    OC -->|"3 - Track Liveness"| OC
+    
+    %% Style all relationships with orange color
+    linkStyle 0,1,2 stroke:#e67e22,stroke-width:2;
+    
+    classDef orangeFlow fill:#e67e22,stroke:#d35400,color:white;
+    class Heartbeat orangeFlow;
+```
+
+## Node Selection Oracles
 
 ```mermaid
 flowchart TD
@@ -298,6 +336,8 @@ flowchart TD
     class TaskExecution blueFlow;
     class UserData tealFlow;
 ```
+
+## Compute Verification Flows
 
 ```mermaid
 flowchart TD
@@ -358,29 +398,4 @@ flowchart TD
     classDef purpleDashedFlow fill:#9b59b6,stroke:#8e44ad,color:white,stroke-dasharray: 5 5;
     class NormalV purpleFlow;
     class ProbV purpleDashedFlow;
-```
-
-```mermaid
-flowchart TD
-    %% Oracle Committee
-    subgraph "Oracle Committee"
-        OC[Oracle Consensus]
-    end
-    
-    %% Node components
-    subgraph "SplitUp Node"
-        CS[Compute Service]
-        HS[Heartbeat Service]
-    end
-    
-    %% HEARTBEAT/LIVENESS FLOW (ORANGE)
-    HS <-->|"1 - Report Capacity"| CS
-    HS -->|"2 - Send Heartbeats"| OC
-    OC -->|"3 - Track Liveness"| OC
-    
-    %% Style all relationships with orange color
-    linkStyle 0,1,2 stroke:#e67e22,stroke-width:2;
-    
-    classDef orangeFlow fill:#e67e22,stroke:#d35400,color:white;
-    class Heartbeat orangeFlow;
 ```

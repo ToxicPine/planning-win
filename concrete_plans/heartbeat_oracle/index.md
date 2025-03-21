@@ -15,8 +15,7 @@ The SplitUp Oracle Committee is a Byzantine Fault Tolerant (BFT) system consisti
 ```mermaid
 graph TD
     subgraph "Blockchain Layer"
-        MC[Model Contract]
-        NR[Node Registry]
+        ME[Model Execution]
     end
 
     subgraph "Oracle Committee (BFT)"
@@ -52,11 +51,34 @@ graph TD
     CNn -.-> O2
     CNn -.-> O3
 
-    O1 --> MC
-    O2 --> MC
-    O3 --> MC
+    O1 --> ME
+    O2 --> ME
+    O3 --> ME
+```
 
-    MC --> NR
+```mermaid
+flowchart TD
+    %% Oracle Committee
+    subgraph "Oracle Committee"
+        OC[Oracle Consensus]
+    end
+    
+    %% Node components
+    subgraph "SplitUp Node"
+        CS[Compute Service]
+        HS[Heartbeat Service]
+    end
+    
+    %% HEARTBEAT/LIVENESS FLOW (ORANGE)
+    HS <-->|"1 - Report Capacity"| CS
+    HS -->|"2 - Send Heartbeats"| OC
+    OC -->|"3 - Track Liveness"| OC
+    
+    %% Style all relationships with orange color
+    linkStyle 0,1,2 stroke:#e67e22,stroke-width:2;
+    
+    classDef orangeFlow fill:#e67e22,stroke:#d35400,color:white;
+    class Heartbeat orangeFlow;
 ```
 
 ## Network Communication Protocols
@@ -125,9 +147,13 @@ sequenceDiagram
     O2->>O2: Sign selection
     O3->>O3: Sign selection
 
-    O1->>BC: SubmitNodeSelection(selection, signature)
-    O2->>BC: SubmitNodeSelection(selection, signature)
-    O3->>BC: SubmitNodeSelection(selection, signature)
+    O1->>O1: Store OracleSignedNodeSelection
+    O2->>O1: POST OracleSignedNodeSelection
+    O3->>O1: POST OracleSignedNodeSelection
+
+    O1->>O1: Aggregate OracleSignedNodeSelection into CommitteeSignedNodeSelection
+
+    O1->>BC: Commit CommitteeSignedNodeSelection
 
     BC->>BC: Verify 2/3 matching signatures
     BC->>BC: Process node selection
@@ -183,14 +209,19 @@ export interface NodeSelection {
   timestamp: Timestamp; // When selection was made
 }
 
+/** Signed node selection from individual oracle **/
+export interface OracleSignedNodeSelection: {
+  selection: NodeSelection;
+  signature: string;
+}
+
 /** Signed node selection */
-export interface SignedNodeSelection {
+export interface CommitteeSignedNodeSelection {
   selection: NodeSelection; // The node selection
   signatures: {
     // Signatures from oracles
     [oracleId: string]: string;
   };
-  threshold: number; // Required signature count
 }
 ```
 
@@ -315,9 +346,13 @@ sequenceDiagram
         O3->>O3: Sign NodeSelection
     end
 
-    O1->>MC: POST SignedNodeSelection
-    O2->>MC: POST SignedNodeSelection
-    O3->>MC: POST SignedNodeSelection
+    O1->>O1: Store OracleSignedNodeSelection
+    O2->>O1: POST OracleSignedNodeSelection
+    O3->>O1: POST OracleSignedNodeSelection
+
+    O1->>O1: Aggregate OracleSignedNodeSelection into CommitteeSignedNodeSelection
+
+    O1->>MC: Commit CommitteeSignedNodeSelection
 
     MC->>MC: Verify 2/3 matching selections and signatures
     MC->>MC: Proceed with task assignment
@@ -361,10 +396,8 @@ sequenceDiagram
 
 **Committee Membership**:
 
-- Initially 3-7 oracle nodes (2/3 majority threshold)
-- High stake requirements for oracle nodes
-- Periodic rotation of membership (e.g., monthly)
-- Economic slashing for malicious behavior
+- Initially 3 oracle nodes (2/3 majority threshold)
+- (TODO) Economic slashing for malicious behavior
 
 **Oracle Redundancy**:
 
@@ -429,7 +462,7 @@ sequenceDiagram
 }
 ```
 
-**Response**: `SignedNodeSelection`
+**Response**: `CommitteeSignedNodeSelection`
 
 - Contains selection with oracle signatures
 

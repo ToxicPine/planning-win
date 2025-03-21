@@ -215,7 +215,7 @@ sequenceDiagram
 
 **Integration with Oracle Committee:**
 
-The Oracle Committee (they pick which nodes should perform each instance of a task), described in [`heartbeat_oracle/index.md`](concrete_plans/heartbeat_oracle/index.md), is bound by these specialization declarations:
+The Oracle Committee (they pick which nodes should perform tasks, regularly checking which nodes are live), described in [`heartbeat_oracle/index.md`](concrete_plans/heartbeat_oracle/index.md), is bound by these specialization declarations:
 
 ```typescript
 // From smart_contracts/index.md
@@ -340,9 +340,17 @@ sequenceDiagram
 
     Note over O1,O3: All Oracle nodes calculate identical selection
 
-    O1->>BC: assignTask(executionId, taskId, selectedNode)
-    O2->>BC: assignTask(executionId, taskId, selectedNode)
-    O3->>BC: assignTask(executionId, taskId, selectedNode)
+    O1->>O1: Sign selection
+    O2->>O2: Sign selection
+    O3->>O3: Sign selection
+
+    O1->>O1: Store OracleSignedNodeSelection
+    O2->>O1: POST OracleSignedNodeSelection
+    O3->>O1: POST OracleSignedNodeSelection
+
+    O1->>O1: Aggregate OracleSignedNodeSelection into CommitteeSignedNodeSelection
+
+    O1->>BC: Commit CommitteeSignedNodeSelection
 
     BC->>BC: Verify 2/3+ Oracles submitted matching assignment
 ```

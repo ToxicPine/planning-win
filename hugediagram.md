@@ -1,3 +1,5 @@
+# More Detailed Diagram
+
 I'm not certain that this is 100% correct, but it might be helpful.
 
 ```mermaid
