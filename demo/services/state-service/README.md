@@ -45,7 +45,7 @@ The State Service maintains configuration for:
 
 1. **Task Specializations**: Which specific model tasks this node is specialized to perform
 2. **Weight Caching**: Which model weights to keep in local storage
-5. **Service Settings**: Configuration for other services in the node
+3. **Service Settings**: Configuration for other services in the node
 
 All configuration is persisted locally and synchronized with the compute service as needed.
 

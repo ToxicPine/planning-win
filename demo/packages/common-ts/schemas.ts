@@ -8,10 +8,11 @@ import {
   number,
   picklist,
   array,
-  minLength,
+  regex,
   optional,
   nullable,
   pipe,
+  url,
 } from "@valibot/valibot";
 import type { InferOutput } from "@valibot/valibot";
 
@@ -98,10 +99,11 @@ export const OracleStatsSchema = object({
 
 /** Heartbeat client configuration */
 export const HeartbeatClientConfigSchema = object({
-  port: number(), // Default handled by config loader
-  oracleUrls: array(string()),
-  nodePrivateKeyBase58: pipe(string(), minLength(0)), // Default to empty string
-  heartbeatIntervalMs: number(), // Default handled by config loader
+  port: number(),
+  hostname: pipe(string(), url()),
+  oracleUrls: array(pipe(string(), url())),
+  nodePrivateKeyBase58: pipe(string(), regex(/^[1-9A-HJ-NP-Za-km-z]+$/)),
+  heartbeatIntervalMs: number(),
   log: LogConfigSchema,
 });
 

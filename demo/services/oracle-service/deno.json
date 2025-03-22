@@ -1,9 +1,13 @@
 {
+  "name": "@scope/oracle-service",
   "imports": {
     "@noble/ed25519": "jsr:@noble/ed25519@^2.2.3",
     "@std/encoding": "jsr:@std/encoding@^1.0.7",
     "@valibot/valibot": "jsr:@valibot/valibot@^1.0.0",
     "hono": "jsr:@hono/hono@^4.7.5"
+  },
+  "exports": {
+    "./types": "./types.ts"
   },
   "tasks": {
     "start": "deno run --allow-net main.ts"

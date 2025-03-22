@@ -1,14 +1,16 @@
 import {
   SignedHeartbeatDataSchema,
+  OracleServerConfigSchema,
+} from "@scope/common-ts/schemas";
+import type {
   HeartbeatResponse,
   OracleServerConfig,
-  OracleServerConfigSchema,
 } from "@scope/common-ts/schemas";
 import { loadConfig } from "@scope/common-ts/config";
 import { createLogger } from "@scope/common-ts/logger";
 import { VerificationService } from "./services/verification.ts";
 import { NodeStatusService } from "./services/node-status.ts";
-import { HealthCheckResponse, Logger } from "@scope/common-ts/types";
+import type { HealthCheckResponse, Logger } from "@scope/common-ts/types";
 import { safeParse } from "@valibot/valibot";
 import { Hono } from "hono";
 
@@ -64,36 +66,24 @@ const nodeStatusService = new NodeStatusService(
   config.offlineThresholdMs,
 );
 
-// Initialize API server
-const app = new Hono();
-
 // Start time for uptime calculation
 const startTime = Math.floor(Date.now() / 1000);
 
-// Basic welcome route
-app.get("/", (c) => {
+// Initialize API server
+const app = new Hono().get("/", (c) => {
   return c.text("SplitUp Oracle Committee Server");
-});
-
-// Stats endpoint to get system-wide statistics
-app.get("/api/stats", (c) => {
+}).get("/api/stats", (c) => {
   const stats = nodeStatusService.getSystemStats();
   logger.debug({ stats }, "Returning System Stats");
   return c.json(stats);
-});
-
-// Node status endpoint to get status of all nodes
-app.get("/api/nodes", (c) => {
+}).get("/api/nodes", (c) => {
   const nodeStatusList = nodeStatusService.getAllNodeStatus();
   logger.debug(
     { nodeCount: nodeStatusList.length },
     "Returning node status list",
   );
   return c.json(nodeStatusList);
-});
-
-// Heartbeat endpoint to receive heartbeats from nodes
-app.post("/api/heartbeat", async (c) => {
+}).post("/api/heartbeat", async (c) => {
   try {
     // Parse the request body
     const body = await c.req.json();
@@ -235,10 +225,7 @@ app.post("/api/heartbeat", async (c) => {
       500,
     );
   }
-});
-
-// Health check endpoint
-app.get("/health", (c) => {
+}).get("/health", (c) => {
   const response: HealthCheckResponse = {
     status: "healthy",
     version: APP_VERSION,
@@ -247,6 +234,8 @@ app.get("/health", (c) => {
 
   return c.json(response);
 });
+
+export type AppType = typeof app;
 
 // Initialize the server
 function initialize(): void {

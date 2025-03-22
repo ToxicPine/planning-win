@@ -1,60 +1,13 @@
 import { Hono } from "hono";
-import {
-  HeartbeatClientConfig,
-  HeartbeatClientConfigSchema,
-} from "@scope/common-ts/schemas";
 
 import {
   StatusUpdateResponse,
   HealthCheckResponse,
   ComputeStatus,
-  Logger,
 } from "@scope/common-ts/types";
 
-import { createLogger } from "@scope/common-ts/logger";
-import { loadConfig } from "@scope/common-ts/config";
+import { config, logger, APP_VERSION } from "./config.ts";
 import { HeartbeatService } from "./services/heartbeat.ts";
-
-// Application version and constants
-const APP_VERSION = "1.0.0";
-const APP_NAME = "heartbeat-client";
-
-// Load configuration from environment
-const ENV_PREFIX = "HEARTBEAT_CLIENT_";
-const DEFAULT_CONFIG = {
-  port: 8000,
-  oracleUrls: ["http://localhost:8001"],
-  heartbeatIntervalMs: 30 * 1000,
-  log: { level: "INFO", format: false },
-};
-
-const configResult = loadConfig(HeartbeatClientConfigSchema, ENV_PREFIX);
-
-// Get the config, using defaults if invalid
-const config: HeartbeatClientConfig = configResult.success
-  ? configResult.data
-  : (DEFAULT_CONFIG as HeartbeatClientConfig);
-
-// Initialize logger with application context
-const logger: Logger = createLogger({
-  level: config.log.level,
-  format: config.log.format,
-  context: {
-    app: APP_NAME,
-    version: APP_VERSION,
-  },
-});
-
-// Log startup information
-if (!configResult.success) {
-  logger.warning(
-    {
-      error: configResult.error,
-      errorCode: configResult.errorCode,
-    },
-    "Configuration Validation Failed, Using Defaults",
-  );
-}
 
 // Initialize the heartbeat service
 const heartbeatService = new HeartbeatService(logger, config.oracleUrls);

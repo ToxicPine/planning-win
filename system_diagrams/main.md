@@ -219,9 +219,11 @@ flowchart TD
     %% Node components
     subgraph "SplitUp Node"
         NM[Node CLI]
-        CF[Configuration Storage]
-        CS[Compute Service]
-        PS[Pre-loading System]
+        CF[Configuration Storage, State Service]
+        subgraph "Compute Service"
+            PR[Pre-loading Subsystem]
+            ES[Execution Subsystem]
+        end
         TL[TaskListener Service]
         HS[Heartbeat Service]
     end
@@ -240,17 +242,16 @@ flowchart TD
     %% NODE REGISTRATION FLOW (GREEN)
     NodeUser --> NM
     NM -->|"1 - Initial Setup"| CF
-    CF -->|"2a - Configure Model Specialization"| CS
-    CF -->|"2b - Configure Weight Management"| PS
+    CF -->|"2 - Configure Weight Management"| PR
     NM -->|"3 - Register Node"| NR
     NM -->|"4 - Submit Stake"| SC
-    PS <-->|"5 - Cache Model Weights"| WS
-    NM -->|"6 - Boot Up"| CS
-    CS -->|"7 - Initialize Listener"| TL
-    CS -->|"8 - Initialize Heartbeat"| HS
+    PR <-->|"5 - Cache Model Weights"| WS
+    CF -->|"6 - Boot Up"| ES
+    ES -->|"7 - Initialize Listener"| TL
+    ES -->|"8 - Initialize Heartbeat"| HS
     
     %% Style all relationships with green color
-    linkStyle 0,1,2,3,4,5,6,7,8,9 stroke:#2ecc71,stroke-width:2;
+    linkStyle 0,1,2,3,4,5,6,7,8 stroke:#2ecc71,stroke-width:2;
     
     classDef greenFlow fill:#2ecc71,stroke:#27ae60,color:white;
     class NodeRegistration greenFlow;
@@ -293,6 +294,12 @@ flowchart TD
     User[End User]
     UC[User CLI/UI]
     
+    %% Node components
+    subgraph "SplitUp Node"
+        CS[Compute Service]
+        TL[TaskListener Service]
+    end
+    
     %% Blockchain contracts
     subgraph "Blockchain Layer"
         ME[Model Execution]
@@ -302,13 +309,6 @@ flowchart TD
     %% Oracle Committee
     subgraph "Oracle Committee"
         OC[Oracle Consensus]
-    end
-    
-    %% Node components
-    subgraph "SplitUp Node"
-        CS[Compute Service]
-        PS[Pre-loading System]
-        TL[TaskListener Service]
     end
     
     %% Storage
@@ -323,14 +323,13 @@ flowchart TD
     ME -->|"3 - Chain Waits For Oracles To Pick Nodes"| OC
     OC <-->|"4 - Oracles Confirm Task Specialization"| NR
     OC -->|"5 - Oracles Confirm Node Selection"| ME
-    NR -->|"6 - Node Listens For Task"| TL
+    ME -->|"6 - Node Listens For Task"| TL
     TL -->|"7 - Listener Forwards Task To GPU"| CS
-    PS -->|"8 - GPU Loads Weights And Task From Cache"| CS
     CS -->|"9 - Store GPU Result"| TS
     CS -->|"10 - Report Completed Computation"| ME
     
     %% Style task execution relationships with blue color
-    linkStyle 0,1,2,3,4,5,6,7,8,9,10 stroke:#3498db,stroke-width:2;
+    linkStyle 0,1,2,3,4,5,6,7,8,9 stroke:#3498db,stroke-width:2;
     
     classDef blueFlow fill:#3498db,stroke:#2980b9,color:white;
     class TaskExecution blueFlow;
@@ -358,7 +357,6 @@ flowchart TD
     %% Node components
     subgraph "SplitUp Node"
         CS[Compute Service]
-        PS[Pre-loading System]
         TL[TaskListener Service]
     end
     
@@ -383,7 +381,6 @@ flowchart TD
     ME -.->|"6b - Select Different Node"| NR
     NR -.->|"7b - Node Listens For Verification Task"| TL
     TL -.->|"8b - Forward Verification Task"| CS
-    PS -.->|"9b - Load Weights For Verification"| CS
     CS -.->|"10b - Store Verification Result"| TS
     TS -.->|"11b - Compare Results"| VC
     VC -.->|"12b - Apply Penalties/Rewards Based on Comparison"| SC
@@ -392,7 +389,7 @@ flowchart TD
     linkStyle 0,1,2,3 stroke:#9b59b6,stroke-width:2;
     
     %% Style all probabilistic relationships with dashed purple
-    linkStyle 4,5,6,7,8,9,10,11,12,13 stroke:#9b59b6,stroke-width:2,stroke-dasharray: 5 5;
+    linkStyle 4,5,6,7,8,9,10,11,12 stroke:#9b59b6,stroke-width:2,stroke-dasharray: 5 5;
     
     classDef purpleFlow fill:#9b59b6,stroke:#8e44ad,color:white;
     classDef purpleDashedFlow fill:#9b59b6,stroke:#8e44ad,color:white,stroke-dasharray: 5 5;

@@ -319,7 +319,6 @@ sequenceDiagram
 sequenceDiagram
     participant User as User
     participant ME as Model Execution
-    participant MR as Model Registry
     participant OC as Oracle Committee
     participant DS as Decentralized Storage
 
@@ -342,6 +341,8 @@ sequenceDiagram
     ME->>ME: Update task status to 'assigned'
     ME->>ME: Emit TaskAssigned events
 ```
+
+For what happens after `TaskAssigned` from the perspective, see [the Task Completion diagrams.](../compute_client/task_completion.md)
 
 ### Task Execution Flow (Oracle Controlled)
 

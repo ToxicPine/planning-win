@@ -2,7 +2,9 @@
  * Heartbeat service responsible for sending heartbeats to oracle nodes
  */
 import * as ed from "@noble/ed25519";
+import { hc } from "hono/client";
 import { encodeBase58, decodeBase58 } from "@std/encoding/base58";
+import type { AppType } from "@scope/oracle-service/types";
 
 import {
   HeartbeatData,
@@ -46,7 +48,7 @@ interface Ed25519KeyPair {
 export class HeartbeatService {
   private nodeKeyPair: Ed25519KeyPair | null = null;
   private logger: Logger;
-  private oracleUrls: string[];
+  private oracleClients: { url: string; clientObject: ReturnType<typeof hc<AppType>> }[];
   private nodeStatus: ComputeStatus = {
     status: "idle",
     hasCapacity: true,
@@ -55,7 +57,7 @@ export class HeartbeatService {
 
   constructor(logger: Logger, oracleUrls: string[]) {
     this.logger = logger;
-    this.oracleUrls = oracleUrls;
+    this.oracleClients = oracleUrls.map((url) => ({ url, clientObject: hc<AppType>(url) }));
   }
 
   /**
@@ -112,14 +114,14 @@ export class HeartbeatService {
 
       // Send to all Oracle Committee nodes
       this.logger.debug(
-        { oracleCount: this.oracleUrls.length },
+        { oracleCount: this.oracleClients.length },
         "Sending Heartbeats to Oracle Nodes",
       );
 
       // Send to all oracles concurrently
       const results = await Promise.allSettled(
-        this.oracleUrls.map((oracleUrl) =>
-          this.sendHeartbeatToOracle(oracleUrl, signedData),
+        this.oracleClients.map((client) =>
+          this.sendHeartbeatToOracle(client, signedData),
         ),
       );
 
@@ -146,7 +148,7 @@ export class HeartbeatService {
       return { successCount, failCount };
     } catch (error) {
       this.logger.error({ error }, "Critical Error in Heartbeat Process");
-      return { successCount: 0, failCount: this.oracleUrls.length };
+      return { successCount: 0, failCount: this.oracleClients.length };
     }
   }
 
@@ -224,35 +226,32 @@ export class HeartbeatService {
    * Sends a signed heartbeat to a single oracle node
    */
   private async sendHeartbeatToOracle(
-    oracleUrl: string,
+    client: { url: string; clientObject: ReturnType<typeof hc<AppType>> },
     signedData: SignedHeartbeatData,
   ): Promise<HeartbeatResult> {
     try {
-      const response = await fetch(`${oracleUrl}/api/heartbeat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(signedData),
+      // Use the Hono client instead of direct fetch
+      const response = await client.clientObject.api.heartbeat.$post({
+        json: signedData,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         this.logger.warning(
           {
-            oracleUrl,
+            oracleUrl: client.url,
             status: response.status,
             error: errorText,
           },
           "Heartbeat Request Failed",
         );
-        return { success: false, oracleUrl, status: response.status };
+        return { success: false, oracleUrl: client.url, status: response.status };
       }
 
-      const heartbeatResponse: HeartbeatResponse = await response.json();
+      const heartbeatResponse = await response.json();
       this.logger.info(
         {
-          oracleUrl,
+          oracleUrl: client.url,
           success: heartbeatResponse.success,
           message: heartbeatResponse.message,
           status: heartbeatResponse.status,
@@ -262,14 +261,14 @@ export class HeartbeatService {
 
       return {
         success: true,
-        oracleUrl,
+        oracleUrl: client.url,
         response: heartbeatResponse,
       };
     } catch (error) {
-      this.logger.error({ oracleUrl, error }, "Error Sending Heartbeat");
+      this.logger.error({ oracleUrl: client.url, error }, "Error Sending Heartbeat");
       return {
         success: false,
-        oracleUrl,
+        oracleUrl: client.url,
         error,
       };
     }

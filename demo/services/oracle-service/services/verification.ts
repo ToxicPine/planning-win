@@ -38,7 +38,11 @@ export class VerificationService {
       const dataBytes = new TextEncoder().encode(dataString);
 
       // Verify the signature using noble ed25519
-      const isValid = await ed.verify(signatureBytes, dataBytes, publicKeyBytes);
+      const isValid = await ed.verify(
+        signatureBytes,
+        dataBytes,
+        publicKeyBytes,
+      );
 
       // Log the verification result with truncated public key for privacy
       this.logger.debug(
