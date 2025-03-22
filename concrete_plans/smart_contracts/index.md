@@ -665,7 +665,7 @@ sequenceDiagram
 interface NodeSelectionRequest {
   executionId: ExecutionId; // ID of the execution
   taskId: TaskId; // Task to be executed
-  blacklistedNodes: NodeAddress[]; // Nodes to exclude (empty for regular assignments)
+  blacklistedNodes: NodeAddress[];
   timestamp: Timestamp; // When the request was made
 }
 
@@ -674,7 +674,7 @@ interface NodeSelection {
   executionId: ExecutionId; // ID of the execution
   taskId: TaskId; // Task to be executed
   selectedNode: NodeAddress; // Selected node for the task
-  blacklistedNodes: NodeAddress[]; // Nodes that were excluded
+  blacklistedNodes: NodeAddress; // Nodes that were excluded
   vrfSeed: string; // Seed used for selection
   roundId: RoundId; // Liveness round used
   timestamp: Timestamp; // When selection was made

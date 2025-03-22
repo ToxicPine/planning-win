@@ -203,7 +203,7 @@ export interface LivenessVote {
 /** Node selection for a task */
 export interface NodeSelection {
   taskId: string; // Task to be executed
-  selectedNodes: NodeAddress[]; // Selected nodes in priority order
+  selectedNode: NodeAddress; // Selected nodes in priority order
   vrfSeed: string; // Seed used for selection
   roundId: RoundId; // Liveness round used
   timestamp: Timestamp; // When selection was made
