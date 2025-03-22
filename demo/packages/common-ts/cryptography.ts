@@ -16,7 +16,7 @@ export type Ed25519Keypair = {
 };
 
 export function deserializeEd25519Keypair(
-  base58PrivateKey: string,
+  base58PrivateKey: string
 ): Result<Ed25519Keypair> {
   // Decode the base58 string to bytes
   const keypairBytes = catchErrSync(() => decodeBase58(base58PrivateKey));
@@ -42,7 +42,7 @@ export function deserializeEd25519Keypair(
 }
 
 export function serializeEd25519Keypair(
-  keypair: Ed25519Keypair,
+  keypair: Ed25519Keypair
 ): Result<string> {
   // Combine private and public key bytes
   const keypairBytes = new Uint8Array(64);
@@ -55,7 +55,7 @@ export function serializeEd25519Keypair(
 
 export function signEd25519(
   keypair: Ed25519Keypair,
-  message: Uint8Array,
+  message: Uint8Array
 ): Result<Uint8Array> {
   return catchErrSync(() => ed.sign(message, keypair.privateKey));
 }
@@ -63,7 +63,7 @@ export function signEd25519(
 export function verifyEd25519(
   keypair: Ed25519Keypair,
   message: Uint8Array,
-  signature: Uint8Array,
+  signature: Uint8Array
 ): Result<boolean> {
   return catchErrSync(() => ed.verify(signature, message, keypair.publicKey));
 }

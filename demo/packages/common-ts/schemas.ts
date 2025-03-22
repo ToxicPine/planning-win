@@ -13,6 +13,7 @@ import {
   nullable,
   pipe,
   url,
+  map,
 } from "@valibot/valibot";
 import type { InferOutput } from "@valibot/valibot";
 
@@ -115,6 +116,20 @@ export const OracleServerConfigSchema = object({
   offlineThresholdMs: number(),
   cleanupIntervalMs: number(),
   log: LogConfigSchema,
+  isKing: boolean(),
+});
+
+export const NodeSelectionSchema = object({
+  taskId: string(),
+  selectedNode: NodeAddress,
+  vrfSeed: string(),
+  roundId: number(),
+  timestamp: Timestamp,
+});
+
+export const CommitteeSignedNodeSelectionSchema = object({
+  selection: NodeSelectionSchema,
+  signatures: map(string(), string()),
 });
 
 // Export type definitions derived from schemas
@@ -128,3 +143,9 @@ export type HeartbeatClientConfig = InferOutput<
   typeof HeartbeatClientConfigSchema
 >;
 export type OracleServerConfig = InferOutput<typeof OracleServerConfigSchema>;
+export type Timestamp = InferOutput<typeof Timestamp>;
+export type NodeAddress = InferOutput<typeof NodeAddress>;
+export type NodeSelection = InferOutput<typeof NodeSelectionSchema>;
+export type CommitteeSignedNodeSelection = InferOutput<
+  typeof CommitteeSignedNodeSelectionSchema
+>;
