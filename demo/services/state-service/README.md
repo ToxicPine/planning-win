@@ -36,7 +36,7 @@ graph TD
 ## Running the Service
 
 ```bash
-uv run main.py
+uv run -m src.main.py
 ```
 
 ## State Management

@@ -20,4 +20,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENTRYPOINT []
 
 # Run the FastAPI application by default.
-CMD ["uv", "run", "main.py"]
+CMD ["uv", "run", "-m", "src.main"]
