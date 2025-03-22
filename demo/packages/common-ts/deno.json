@@ -11,7 +11,8 @@
     "./config": "./config.ts",
     "./logger": "./logger.ts",
     "./schemas": "./schemas.ts",
-    "./types": "./types.ts"
+    "./types": "./types.ts",
+    "./cryptography": "./cryptography.ts"
   },
   "compilerOptions": {
     "jsx": "precompile",
