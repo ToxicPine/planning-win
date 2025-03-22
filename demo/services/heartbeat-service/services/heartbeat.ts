@@ -48,7 +48,10 @@ interface Ed25519KeyPair {
 export class HeartbeatService {
   private nodeKeyPair: Ed25519KeyPair | null = null;
   private logger: Logger;
-  private oracleClients: { url: string; clientObject: ReturnType<typeof hc<AppType>> }[];
+  private oracleClients: {
+    url: string;
+    clientObject: ReturnType<typeof hc<AppType>>;
+  }[];
   private nodeStatus: ComputeStatus = {
     status: "idle",
     hasCapacity: true,
@@ -57,7 +60,10 @@ export class HeartbeatService {
 
   constructor(logger: Logger, oracleUrls: string[]) {
     this.logger = logger;
-    this.oracleClients = oracleUrls.map((url) => ({ url, clientObject: hc<AppType>(url) }));
+    this.oracleClients = oracleUrls.map((url) => ({
+      url,
+      clientObject: hc<AppType>(url),
+    }));
   }
 
   /**
@@ -245,7 +251,11 @@ export class HeartbeatService {
           },
           "Heartbeat Request Failed",
         );
-        return { success: false, oracleUrl: client.url, status: response.status };
+        return {
+          success: false,
+          oracleUrl: client.url,
+          status: response.status,
+        };
       }
 
       const heartbeatResponse = await response.json();
@@ -265,7 +275,10 @@ export class HeartbeatService {
         response: heartbeatResponse,
       };
     } catch (error) {
-      this.logger.error({ oracleUrl: client.url, error }, "Error Sending Heartbeat");
+      this.logger.error(
+        { oracleUrl: client.url, error },
+        "Error Sending Heartbeat",
+      );
       return {
         success: false,
         oracleUrl: client.url,

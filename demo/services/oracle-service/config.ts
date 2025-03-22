@@ -1,18 +1,18 @@
-import { Logger } from "@scope/common-ts/types";
+import type { Logger } from "@scope/common-ts/types";
 import {
-  HeartbeatClientConfig,
-  HeartbeatClientConfigSchema,
+  type OracleServerConfig,
+  OracleServerConfigSchema,
 } from "@scope/common-ts/schemas";
 import { createLogger } from "@scope/common-ts/logger";
 import { loadConfig } from "@scope/common-ts/config";
 
 // Application version and constants
 export const APP_VERSION = "1.0.0";
-export const APP_NAME = "heartbeat-client";
+export const APP_NAME = "oracle-service";
 
 // Load configuration from environment
-const ENV_PREFIX = "HEARTBEAT_CLIENT_";
-export const configResult = loadConfig(HeartbeatClientConfigSchema, ENV_PREFIX);
+const ENV_PREFIX = "ORACLE_SERVICE_";
+export const configResult = loadConfig(OracleServerConfigSchema, ENV_PREFIX);
 
 // Create a temporary logger to log the error
 let tempLogger: Logger | null = null;
@@ -40,7 +40,7 @@ if (!configResult.success) {
 // Make sure GC deallocates tempLogger
 tempLogger = null;
 
-export const config: HeartbeatClientConfig = configResult.data;
+export const config: OracleServerConfig = configResult.data;
 
 // Initialize logger with application context
 export const logger: Logger = createLogger({
