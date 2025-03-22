@@ -14,7 +14,7 @@ from .storage import (
     get_config_path,
 )
 from .environment import load_env_config
-from .models import SystemConfig, DefaultConfig, SystemConfigUpdateRequest, ErrorResponse
+from .models import SystemConfig, SystemConfigUpdateRequest, ErrorResponse
 
 
 # Dependency for logger
