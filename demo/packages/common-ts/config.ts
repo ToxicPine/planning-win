@@ -48,7 +48,7 @@ export function loadEnvVars(envPrefix: string = ""): Record<string, unknown> {
  * @returns - Result containing the validated configuration or error details
  */
 export function loadConfig<
-  T extends BaseSchema<unknown, unknown, BaseIssue<unknown>>
+  T extends BaseSchema<unknown, unknown, BaseIssue<unknown>>,
 >(schema: T, prefix: string = ""): Result<InferOutput<T>> {
   try {
     // Helper for converting string env var values to appropriate types
@@ -69,21 +69,24 @@ export function loadConfig<
         .replace(prefix.toLowerCase(), "")
         .split("_")
         .map((word, index) =>
-          index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+          index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1),
         )
         .join("");
     };
 
     // Gather values from environment variables
     const envConfig: Record<string, unknown> = Object.entries(
-      Deno.env.toObject()
+      Deno.env.toObject(),
     )
       .filter(([key]) => key.startsWith(prefix))
-      .reduce((acc: Record<string, unknown>, [key, value]) => {
-        const camelCaseKey = toCamelCase(key);
-        acc[camelCaseKey] = convertValue(value);
-        return acc;
-      }, {} satisfies Record<string, unknown>);
+      .reduce(
+        (acc: Record<string, unknown>, [key, value]) => {
+          const camelCaseKey = toCamelCase(key);
+          acc[camelCaseKey] = convertValue(value);
+          return acc;
+        },
+        {} satisfies Record<string, unknown>,
+      );
 
     // Validate with schema
     const parseResult = safeParse(schema, envConfig);

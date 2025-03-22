@@ -22,7 +22,7 @@ export class ConsensusService {
       oracleId: string;
       url: string;
     }[],
-    publicKey: string
+    publicKey: string,
   ) {
     this.oracleCommittee = oracleCommittee;
     const result = deserializeEd25519Keypair(publicKey);
@@ -41,7 +41,7 @@ export class ConsensusService {
     const tableString = nodeStatusData
       .map(
         (node) =>
-          `${node.nodeAddress}:${node.status}:${node.lastHeartbeat}:${node.hasCapacity}`
+          `${node.nodeAddress}:${node.status}:${node.lastHeartbeat}:${node.hasCapacity}`,
       )
       .join("|");
 
@@ -63,7 +63,7 @@ export class ConsensusService {
    */
   private async generateLivenessTable(
     roundId: number,
-    nodeStatusData: NodeStatusData[]
+    nodeStatusData: NodeStatusData[],
   ): Promise<LivenessTable> {
     const sortedData = nodeStatusData.sort((a, b) => {
       if (a.status === b.status) {
@@ -93,11 +93,11 @@ export class ConsensusService {
   public async startConsensusRound(
     taskId: string,
     roundId: number,
-    nodeStatusData: NodeStatusData[]
+    nodeStatusData: NodeStatusData[],
   ): Promise<OracleSignedNodeSelection> {
     const livenessTable = await this.generateLivenessTable(
       roundId,
-      nodeStatusData
+      nodeStatusData,
     );
 
     const majorityTable = await this.contactOracleCommittee(livenessTable);
@@ -105,7 +105,7 @@ export class ConsensusService {
     const randomIndex = await deterministicRandom(
       new TextEncoder().encode(majorityTable.tableHash),
       roundId,
-      majorityTable.updates.length + 1
+      majorityTable.updates.length + 1,
     );
 
     const selection = majorityTable.updates[randomIndex];
@@ -135,16 +135,16 @@ export class ConsensusService {
    * @returns The majority table
    */
   private async contactOracleCommittee(
-    livenessTable: LivenessTable
+    livenessTable: LivenessTable,
   ): Promise<LivenessTable> {
     const responses = await Promise.all(
-      this.oracleCommittee.map((oracle) => fetch(oracle.url + "/api/liveness"))
+      this.oracleCommittee.map((oracle) => fetch(oracle.url + "/api/liveness")),
     );
 
     const results: LivenessTable[] = await Promise.all(
       responses
         .filter((response) => response.ok)
-        .map((response) => response.json())
+        .map((response) => response.json()),
     );
 
     const tables = [...results, livenessTable];

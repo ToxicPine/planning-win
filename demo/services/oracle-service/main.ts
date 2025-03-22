@@ -11,7 +11,7 @@ import { config, logger, APP_VERSION } from "./config.ts";
 const verificationService = new VerificationService(logger);
 const nodeStatusService = new NodeStatusService(
   logger,
-  config.offlineThresholdMs
+  config.offlineThresholdMs,
 );
 
 // Start time for uptime calculation
@@ -31,7 +31,7 @@ const app = new Hono()
     const nodeStatusList = nodeStatusService.getAllNodeStatus();
     logger.debug(
       { nodeCount: nodeStatusList.length },
-      "Returning node status list"
+      "Returning node status list",
     );
     return c.json(nodeStatusList);
   })
@@ -44,7 +44,7 @@ const app = new Hono()
       if (!validationResult.success) {
         logger.warning(
           { errors: validationResult.issues },
-          "Invalid heartbeat data received"
+          "Invalid heartbeat data received",
         );
         return c.json(
           {
@@ -53,7 +53,7 @@ const app = new Hono()
             timestamp: Math.floor(Date.now() / 1000),
             status: "unknown",
           } satisfies HeartbeatResponse,
-          400
+          400,
         );
       }
 
@@ -70,7 +70,7 @@ const app = new Hono()
             diff: Math.abs(currentTime - payload.timestamp),
             publicKey: publicKey.substring(0, 10) + "...",
           },
-          "Heartbeat Timestamp Too Old or In The Future"
+          "Heartbeat Timestamp Too Old or In The Future",
         );
 
         return c.json(
@@ -80,7 +80,7 @@ const app = new Hono()
             timestamp: currentTime,
             status: "unknown",
           } satisfies HeartbeatResponse,
-          400
+          400,
         );
       }
 
@@ -89,7 +89,7 @@ const app = new Hono()
         await verificationService.verifyHeartbeatSignature(
           payload,
           signature,
-          publicKey
+          publicKey,
         );
 
       if (!signatureResult.success) {
@@ -98,7 +98,7 @@ const app = new Hono()
             error: signatureResult.error,
             publicKey: publicKey.substring(0, 10) + "...",
           },
-          "Signature Verification Error"
+          "Signature Verification Error",
         );
 
         return c.json(
@@ -108,7 +108,7 @@ const app = new Hono()
             timestamp: currentTime,
             status: "unknown",
           } satisfies HeartbeatResponse,
-          500
+          500,
         );
       }
 
@@ -117,7 +117,7 @@ const app = new Hono()
           {
             publicKey: publicKey.substring(0, 10) + "...",
           },
-          "Invalid Signature For Heartbeat"
+          "Invalid Signature For Heartbeat",
         );
 
         return c.json(
@@ -127,7 +127,7 @@ const app = new Hono()
             timestamp: currentTime,
             status: "unknown",
           } satisfies HeartbeatResponse,
-          401
+          401,
         );
       }
 
@@ -143,7 +143,7 @@ const app = new Hono()
             hasCapacity: payload.hasCapacity,
             totalNodes: nodeStatusService.getSystemStats().totalNodes,
           },
-          "Heartbeat Received From New Node"
+          "Heartbeat Received From New Node",
         );
       } else {
         logger.info(
@@ -153,7 +153,7 @@ const app = new Hono()
             hasCapacity: payload.hasCapacity,
             heartbeatCount: nodeStatusService.getSystemStats().totalHeartbeats,
           },
-          "Heartbeat Received From Existing Node"
+          "Heartbeat Received From Existing Node",
         );
       }
 
@@ -176,7 +176,7 @@ const app = new Hono()
           timestamp: Math.floor(Date.now() / 1000),
           status: "unknown",
         } satisfies HeartbeatResponse,
-        500
+        500,
       );
     }
   })
@@ -201,13 +201,13 @@ function initialize(): void {
         offlineThreshold: config.offlineThresholdMs / 1000 + "s",
         cleanupInterval: config.cleanupIntervalMs / 1000 + "s",
       },
-      "Starting SplitUp Oracle Committee Server"
+      "Starting SplitUp Oracle Committee Server",
     );
 
     // Run Cleanup At The Specified Interval
     setInterval(
       () => nodeStatusService.cleanupOfflineNodes(),
-      config.cleanupIntervalMs
+      config.cleanupIntervalMs,
     );
 
     // Start the server
@@ -216,7 +216,7 @@ function initialize(): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.critical(
       { error: errorMessage },
-      "Failed To Initialize Oracle Committee Server"
+      "Failed To Initialize Oracle Committee Server",
     );
     Deno.exit(1);
   }
