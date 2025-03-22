@@ -6,7 +6,7 @@ from rich.logging import RichHandler
 
 # Configuration models
 class ConfigModel(BaseModel):
-    """Base configuration model."""
+    """Base Configuration Model."""
 
     app_name: str = "state-service"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
@@ -16,7 +16,7 @@ class ConfigModel(BaseModel):
 
 # Logger setup
 def setup_logger(name: str, log_level: str = "INFO") -> logging.Logger:
-    """Set up a rich logger with the specified name and level."""
+    """Set Up A Rich Logger With The Specified Name And Level."""
     level = getattr(logging, log_level)
     logger = logging.getLogger(name)
     logger.setLevel(level)

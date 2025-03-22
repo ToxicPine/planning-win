@@ -1,6 +1,6 @@
 from .result import create_success, create_failure, Result
-from pydantic import BaseModel, main as pydantic_main
-from typing import TypeVar, Type, Optional, Callable, Any, Dict, cast
+from pydantic import BaseModel
+from typing import TypeVar, Type, Optional, Callable, Any, Dict
 import os
 
 T = TypeVar("T", bound=BaseModel)

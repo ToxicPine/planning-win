@@ -5,16 +5,16 @@ import sys
 from urllib.parse import urlparse
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, model_validator
-from typing import Optional, Literal
 from functools import lru_cache
 from .result import create_success, create_failure, Result
-from .logger import ConfigModel, setup_logger
+from .logger import setup_logger
 from .storage import (
     load_config_file,
     save_config_file,
     get_config_path,
 )
 from .environment import load_env_config
+from .models import SystemConfig, DefaultConfig, SystemConfigUpdateRequest, ErrorResponse
 
 
 # Dependency for logger
@@ -44,46 +44,22 @@ class EnvSettings(BaseModel):
         try:
             result = urlparse(self.SPLITUP_STATE_SERVICE_NOTIFICATION_URL)
             if not all([result.scheme, result.netloc]):
-                raise ValueError("URL must have a scheme and host")
+                raise ValueError("URL Must Have A Scheme And Host")
             return self
         except Exception as e:
             raise ValueError(f"Invalid URL: {str(e)}")
 
 
-class SystemConfig(BaseModel):
-    """Response model for configuration."""
-
-    app_name: str
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    api_port: int
-    notification_url: str
-
-
-# API models
-class SystemConfigUpdateRequest(BaseModel):
-    """Request model for updating configuration."""
-
-    app_name: Optional[str] = None
-    log_level: Optional[str] = None
-    api_port: Optional[int] = None
-    notification_url: Optional[str] = None
-
-
-class ErrorResponse(BaseModel):
-    """Response model for errors."""
-
-    error: str
-
-
 # Notification service
 async def notify_config_change(
-    config: ConfigModel, logger: logging.Logger
+    config: SystemConfig, notification_url: str, logger: logging.Logger
 ) -> Result[None, str]:
     """Notify Another Service About Configuration Changes."""
     try:
+        logger.info(f"Notifying {notification_url} about configuration change")
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                config.notification_url,
+                notification_url,
                 json={"event": "config_changed", "data": config.model_dump()},
             )
             response.raise_for_status()
@@ -97,10 +73,11 @@ async def notify_config_change(
 class ConfigService:
     """Service Class To Handle Configuration Operations."""
 
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, notification_url: str):
         self.logger = logger
+        self.notification_url = notification_url
 
-    def get_config(self) -> Result[ConfigModel, str]:
+    def get_config(self) -> Result[SystemConfig, str]:
         """Get The Current Configuration."""
         self.logger.info("Retrieving Configuration")
 
@@ -113,7 +90,7 @@ class ConfigService:
 
     def update_config(
         self, update: SystemConfigUpdateRequest
-    ) -> Result[ConfigModel, str]:
+    ) -> Result[SystemConfig, str]:
         """Update The Configuration with Provided Values."""
         self.logger.info(f"Updating Configuration: {update}")
 
@@ -144,20 +121,36 @@ class ConfigService:
 
         return create_success(current_config)
 
-    async def notify_config_change(self, config: ConfigModel) -> Result[None, str]:
+    async def notify_config_change(self) -> Result[None, str]:
         """Notify Another Service about Configuration Changes."""
-        return await notify_config_change(config, self.logger)
+        config_result = self.get_config()
+        if config_result.status == "failure":
+            self.logger.error(config_result.error)
+            return create_failure(config_result.error)
 
-
-# Dependency for config service
-@lru_cache()
-def get_config_service(logger: logging.Logger = Depends(get_logger)) -> ConfigService:
-    """Get The Configuration Service Instance."""
-    return ConfigService(logger)
+        return await notify_config_change(config_result.data, self.notification_url, self.logger)
 
 
 # Application setup
 app = FastAPI(title="State Service API")
+
+# Store environment config at app state level
+app.state.env_config = None
+
+# Dependency to get notification URL
+def get_notification_url():
+    """Get Notification URL From Environment Configuration."""
+    if app.state.env_config is None:
+        raise RuntimeError("Environment Configuration Not Initialized")
+    return app.state.env_config.SPLITUP_STATE_SERVICE_NOTIFICATION_URL
+
+# Dependency for config service
+def get_config_service(
+    logger: logging.Logger = Depends(get_logger),
+    notification_url: str = Depends(get_notification_url)
+) -> ConfigService:
+    """Get The Configuration Service Instance."""
+    return ConfigService(logger, notification_url)
 
 
 @app.get(
@@ -187,7 +180,7 @@ async def update_config(
         raise HTTPException(status_code=500, detail=result.error)
 
     # Notify About The Configuration Change
-    notify_result = await config_service.notify_config_change(result.data)
+    notify_result = await config_service.notify_config_change()
     if notify_result.status == "failure":
         config_service.logger.warning(
             f"Failed to Notify About Configuration Change: {notify_result.error}"
@@ -204,10 +197,11 @@ def main():
         print(f"Error: {env_result.error}", file=sys.stderr)
         sys.exit(1)
 
-    env_config = env_result.data
+    # Store environment config in app state
+    app.state.env_config = env_result.data
 
     # Set Up Logger
-    logger = setup_logger("state-service", env_config.SPLITUP_STATE_SERVICE_LOG_LEVEL)
+    logger = setup_logger("state-service", app.state.env_config.SPLITUP_STATE_SERVICE_LOG_LEVEL)
     logger.info("Starting State Service")
 
     # Ensure Config Directory And File
@@ -224,9 +218,9 @@ def main():
 
     # Start the API server
     logger.info(
-        f"Starting API Server on Port {env_config.SPLITUP_STATE_SERVICE_API_PORT}"
+        f"Starting API Server on Port {app.state.env_config.SPLITUP_STATE_SERVICE_API_PORT}"
     )
-    uvicorn.run(app, host="0.0.0.0", port=env_config.SPLITUP_STATE_SERVICE_API_PORT)
+    uvicorn.run(app, host="0.0.0.0", port=app.state.env_config.SPLITUP_STATE_SERVICE_API_PORT)
 
 
 if __name__ == "__main__":

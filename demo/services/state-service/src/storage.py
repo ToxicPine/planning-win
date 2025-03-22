@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 from .result import create_success, create_failure, Result
-from .logger import ConfigModel
+from .models import SystemConfig, DefaultConfig
 
 
 # File system operations
@@ -26,11 +26,11 @@ def get_config_path(filename: str = "config.json") -> Result[Path, str]:
     return create_success(dir_result.data / filename)
 
 
-def load_config_file(config_path: Path) -> Result[ConfigModel, str]:
+def load_config_file(config_path: Path) -> Result[SystemConfig, str]:
     """Load configuration from a JSON file."""
     try:
         if not config_path.exists():
-            config = ConfigModel()
+            config = DefaultConfig()
             with open(config_path, "w") as f:
                 f.write(config.model_dump_json(indent=2))
             return create_success(config)
@@ -38,13 +38,14 @@ def load_config_file(config_path: Path) -> Result[ConfigModel, str]:
         with open(config_path, "r") as f:
             config_data = json.load(f)
 
-        config = ConfigModel(**config_data)
+        # Validate the config data against SystemConfig schema
+        config = SystemConfig.model_validate(config_data)
         return create_success(config)
     except Exception as e:
         return create_failure(f"Failed to Load Config File: {str(e)}")
 
 
-def save_config_file(config: ConfigModel, config_path: Path) -> Result[None, str]:
+def save_config_file(config: SystemConfig, config_path: Path) -> Result[None, str]:
     """Save configuration to a JSON file."""
     try:
         with open(config_path, "w") as f:
