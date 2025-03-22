@@ -138,12 +138,7 @@ export class ConsensusService {
     livenessTable: LivenessTable
   ): Promise<LivenessTable> {
     const responses = await Promise.all(
-      this.oracleCommittee.map((oracle) =>
-        fetch(oracle.url + "/api/liveness/propose", {
-          method: "POST",
-          body: JSON.stringify(livenessTable),
-        })
-      )
+      this.oracleCommittee.map((oracle) => fetch(oracle.url + "/api/liveness"))
     );
 
     const results: LivenessTable[] = await Promise.all(
@@ -152,7 +147,9 @@ export class ConsensusService {
         .map((response) => response.json())
     );
 
-    const tableHashes = results.map((table) => table.tableHash);
+    const tables = [...results, livenessTable];
+
+    const tableHashes = tables.map((table) => table.tableHash);
 
     // Count occurrences of each hash
     const hashCounts = new Map<string, number>();
