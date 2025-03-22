@@ -1,6 +1,6 @@
 import { safeParse } from "@valibot/valibot";
 import type { BaseSchema, BaseIssue, InferOutput } from "@valibot/valibot";
-import { Result } from "./types.ts";
+import type { Result } from "./types.ts";
 
 /**
  * Load environment variables with a specific prefix and convert them to appropriate types

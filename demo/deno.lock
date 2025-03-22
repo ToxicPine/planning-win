@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@hono/hono@^4.7.5": "4.7.5",
     "jsr:@noble/ed25519@^2.2.3": "2.2.3",
+    "jsr:@noble/hashes@^1.7.1": "1.7.1",
     "jsr:@std/encoding@^1.0.7": "1.0.7",
     "jsr:@valibot/valibot@1": "1.0.0"
   },
@@ -12,6 +13,9 @@
     },
     "@noble/ed25519@2.2.3": {
       "integrity": "77d984ee6b823c8b1a4a36aa56105d60e696a4e7b599b821712d1251481e2f9c"
+    },
+    "@noble/hashes@1.7.1": {
+      "integrity": "2c29f1dc07943155f5c7384be6f570a749c2afee95a0557cdae02b4fd5956134"
     },
     "@std/encoding@1.0.7": {
       "integrity": "f631247c1698fef289f2de9e2a33d571e46133b38d042905e3eac3715030a82d"
@@ -24,6 +28,9 @@
     "members": {
       "packages/common-ts": {
         "dependencies": [
+          "jsr:@noble/ed25519@^2.2.3",
+          "jsr:@noble/hashes@^1.7.1",
+          "jsr:@std/encoding@^1.0.7",
           "jsr:@valibot/valibot@1"
         ]
       },

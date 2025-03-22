@@ -2,6 +2,9 @@
   "name": "@scope/common-ts",
   "version": "0.1.0",
   "imports": {
+    "@noble/ed25519": "jsr:@noble/ed25519@^2.2.3",
+    "@noble/hashes": "jsr:@noble/hashes@^1.7.1",
+    "@std/encoding": "jsr:@std/encoding@^1.0.7",
     "@valibot/valibot": "jsr:@valibot/valibot@^1.0.0"
   },
   "exports": {

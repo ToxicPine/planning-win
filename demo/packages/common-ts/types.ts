@@ -26,6 +26,81 @@ export interface Failure {
 export type Result<T> = Success<T> | Failure;
 
 /**
+ * Creates a successful result object
+ *
+ * @param data The data to include in the success result
+ * @returns A Success result object
+ */
+export function createSuccess<T>(data: T): Success<T> {
+  return {
+    success: true,
+    data,
+  };
+}
+
+/**
+ * Creates a failure result object
+ *
+ * @param error The error message
+ * @param errorCode Optional error code
+ * @param details Optional additional error details
+ * @returns A Failure result object
+ */
+export function createFailure(
+  error: string,
+  errorCode?: string,
+  details?: unknown,
+): Failure {
+  return {
+    success: false,
+    error,
+    errorCode,
+    details,
+  };
+}
+
+/**
+ * Utility function that executes a function and catches any errors,
+ * returning them as a Result type.
+ *
+ * @param fn The function to execute
+ * @returns A Result containing either the function's return value or an error
+ */
+export async function catchErrAsync<T>(
+  fn: () => Promise<T>,
+): Promise<Result<T>> {
+  try {
+    const result = await fn();
+    return createSuccess(result);
+  } catch (error) {
+    return createFailure(
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error && error.name ? error.name : undefined,
+      error,
+    );
+  }
+}
+
+/**
+ * Synchronous version of catchErr
+ *
+ * @param fn The function to execute
+ * @returns A Result containing either the function's return value or an error
+ */
+export function catchErrSync<T>(fn: () => T): Result<T> {
+  try {
+    const result = fn();
+    return createSuccess(result);
+  } catch (error) {
+    return createFailure(
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error && error.name ? error.name : undefined,
+      error,
+    );
+  }
+}
+
+/**
  * Standard health check response format for API endpoints
  */
 export interface HealthCheckResponse {
