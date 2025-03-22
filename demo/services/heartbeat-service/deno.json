@@ -1,8 +1,6 @@
 {
   "imports": {
     "@noble/ed25519": "jsr:@noble/ed25519@^2.2.3",
-    "@solana/kit": "npm:@solana/kit@^2.1.0",
-    "@solana/web3.js": "npm:@solana/web3.js@^1.73.3",
     "@std/encoding": "jsr:@std/encoding@^1.0.7",
     "@valibot/valibot": "jsr:@valibot/valibot@^1.0.0",
     "hono": "jsr:@hono/hono@^4.7.5"

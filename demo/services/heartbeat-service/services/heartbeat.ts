@@ -105,7 +105,7 @@ export class HeartbeatService {
         hasCapacity: this.nodeStatus.hasCapacity,
       };
 
-      this.logger.debug({ heartbeatData }, "Generating heartbeat");
+      this.logger.debug({ heartbeatData }, "Generating Heartbeat");
 
       // Sign the heartbeat data
       const signedData = await this.signHeartbeatData(heartbeatData);
@@ -113,7 +113,7 @@ export class HeartbeatService {
       // Send to all Oracle Committee nodes
       this.logger.debug(
         { oracleCount: this.oracleUrls.length },
-        "Sending heartbeats to oracle nodes",
+        "Sending Heartbeats to Oracle Nodes",
       );
 
       // Send to all oracles concurrently
@@ -134,18 +134,18 @@ export class HeartbeatService {
       if (successCount > 0) {
         this.logger.info(
           { successCount, failCount, total: results.length },
-          "Heartbeat round completed",
+          "Heartbeat Round Completed",
         );
       } else if (failCount > 0) {
         this.logger.warning(
           { failCount, total: results.length },
-          "All heartbeats failed in this round",
+          "All Heartbeats Failed in This Round",
         );
       }
 
       return { successCount, failCount };
     } catch (error) {
-      this.logger.error({ error }, "Critical error in heartbeat process");
+      this.logger.error({ error }, "Critical Error in Heartbeat Process");
       return { successCount: 0, failCount: this.oracleUrls.length };
     }
   }
