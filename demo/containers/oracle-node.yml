@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  oracle-service:
+    build:
+      context: .
+      dockerfile: ../services/oracle-service/Dockerfile
+    ports:
+      - "${SPLITUP_CONFIG_API_PORT:-8000}:8000"
+    working_dir: /app
+    environment:
+      - HOME=/app
+      - SPLITUP_ORACLE_SERVICE_PORT=${SPLITUP_ORACLE_SERVICE_PORT:-8000}
+      - SPLITUP_ORACLE_SERVICE_HOST=${SPLITUP_ORACLE_SERVICE_HOST:-localhost}
+      - SPLITUP_ORACLE_SERVICE_PRIVATE_KEY=${SPLITUP_ORACLE_SERVICE_PRIVATE_KEY:-}
+      - SPLITUP_ORACLE_COMMITTEE_ADDRESSES=${SPLITUP_ORACLE_COMMITTEE_ADDRESSES:-}
+      - SPLITUP_ORACLE_SERVICE_OFFLINE_THRESHOLD_MS=${SPLITUP_ORACLE_SERVICE_OFFLINE_THRESHOLD_MS:-90000}
+      - SPLITUP_ORACLE_SERVICE_CLEANUP_INTERVAL_MS=${SPLITUP_ORACLE_SERVICE_CLEANUP_INTERVAL_MS:-30000}
+      - SPLITUP_ORACLE_SERVICE_LOG_LEVEL=${SPLITUP_ORACLE_SERVICE_LOG_LEVEL:-INFO}
+      - SPLITUP_ORACLE_SERVICE_LOG_FORMAT=${SPLITUP_ORACLE_SERVICE_LOG_FORMAT:-false}
+    networks:
+      - internal-network
+
+  listener-service:
+    build:
+      context: .
+      dockerfile: ../services/listener-service/Dockerfile
+    working_dir: /app
+    environment:
+      - SPLITUP_LISTENER_RPC_URL=${SPLITUP_LISTENER_RPC_URL}
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge

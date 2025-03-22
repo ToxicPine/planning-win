@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  state-service:
+    build:
+      context: .
+      dockerfile: ../services/state-service/Dockerfile
+    volumes:
+      - $HOME/.splitup:/app/.splitup
+    ports:
+      - "${SPLITUP_CONFIG_API_PORT:-8000}:8000"
+    working_dir: /app
+    environment:
+      - HOME=/app
+      - SPLITUP_DATA_DIR=/app/.splitup
+    networks:
+      - internal-network
+
+  compute-service:
+    build:
+      context: .
+      dockerfile: ../services/compute-service/Dockerfile
+    volumes:
+      - $HOME/.splitup:/app/.splitup
+    working_dir: /app
+    environment:
+      - HOME=/app
+      - SPLITUP_DATA_DIR=/app/.splitup
+    networks:
+      - internal-network
+
+  listener-service:
+    build:
+      context: .
+      dockerfile: ../services/listener-service/Dockerfile
+    working_dir: /app
+    environment:
+      - SPLITUP_LISTENER_RPC_URL=${SPLITUP_LISTENER_RPC_URL}
+      - SPLITUP_CLIENT_SOLANA_PRIVATE_KEY=${SPLITUP_CLIENT_SOLANA_PRIVATE_KEY}
+    networks:
+      - internal-network
+
+  heartbeat-service:
+    build:
+      context: .
+      dockerfile: ../services/heartbeat-service/Dockerfile
+    working_dir: /app
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge

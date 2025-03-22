@@ -1,0 +1,17 @@
+{
+  "name": "@scope/common-ts",
+  "version": "0.1.0",
+  "imports": {
+    "@valibot/valibot": "jsr:@valibot/valibot@^1.0.0"
+  },
+  "exports": {
+    "./config": "./config.ts",
+    "./logger": "./logger.ts",
+    "./schemas": "./schemas.ts",
+    "./types": "./types.ts"
+  },
+  "compilerOptions": {
+    "jsx": "precompile",
+    "strict": true
+  }
+}

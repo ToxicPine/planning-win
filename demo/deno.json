@@ -1,0 +1,8 @@
+{
+  "workspace": [
+    "./services/oracle-service",
+    "./services/heartbeat-service",
+    "./services/listener-service",
+    "./packages/common-ts"
+  ]
+}
