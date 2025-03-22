@@ -110,6 +110,8 @@ export const HeartbeatClientConfigSchema = object({
 /** Oracle server configuration */
 export const OracleServerConfigSchema = object({
   port: number(),
+  otherOracleUrls: array(pipe(string(), url())),
+  nodePrivateKeyBase58: pipe(string(), regex(/^[1-9A-HJ-NP-Za-km-z]+$/)),
   offlineThresholdMs: number(),
   cleanupIntervalMs: number(),
   log: LogConfigSchema,

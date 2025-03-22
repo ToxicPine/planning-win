@@ -1,13 +1,13 @@
 /**
  * Node status service for tracking the status of compute nodes
  */
-import {
+import type {
   NodeStatusData,
   HeartbeatData,
   OracleStats,
   NodeStatus,
 } from "@scope/common-ts/schemas";
-import { Logger } from "@scope/common-ts/types";
+import type { Logger } from "@scope/common-ts/types";
 
 /**
  * Service for tracking and managing node status information
