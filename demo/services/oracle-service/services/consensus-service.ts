@@ -1,8 +1,8 @@
 import type { LivenessTable, OracleSignedNodeSelection } from "../types.ts";
 import type { NodeStatusData } from "@scope/common-ts/schemas";
 import {
+  type Ed25519Keypair,
   deserializeEd25519Keypair,
-  Ed25519Keypair,
   signEd25519,
   deterministicRandom,
 } from "@scope/common-ts/cryptography";
@@ -27,7 +27,7 @@ export class ConsensusService {
     this.oracleCommittee = oracleCommittee;
     const result = deserializeEd25519Keypair(publicKey);
     if (!result.success) {
-      throw new Error("Invalid public key");
+      throw new Error("Invalid Public Key");
     }
     this.keypair = result.data;
   }
@@ -114,7 +114,7 @@ export class ConsensusService {
     const signatureResult = signEd25519(this.keypair, message);
 
     if (!signatureResult.success) {
-      throw new Error("Failed to sign message");
+      throw new Error("Failed to Sign Message");
     }
 
     return {
