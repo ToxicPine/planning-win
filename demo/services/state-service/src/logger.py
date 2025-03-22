@@ -1,17 +1,5 @@
 import logging
-from typing import Literal
-from pydantic import BaseModel
 from rich.logging import RichHandler
-
-
-# Configuration models
-class ConfigModel(BaseModel):
-    """Base Configuration Model."""
-
-    app_name: str = "state-service"
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-    api_port: int = 8000
-    notification_url: str = "http://localhost:8001/notify"
 
 
 # Logger setup
