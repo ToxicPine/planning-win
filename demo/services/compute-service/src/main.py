@@ -64,7 +64,9 @@ class ConfigService:
         self.config_url = config_url
         self.heartbeat_url = heartbeat_url
 
-    async def load_config(self) -> Result[SystemConfig, str]:
+    async def load_config(
+        self, storage_service: StorageService
+    ) -> Result[SystemConfig, str]:
         """Get The Current Configuration From API With Retry Logic."""
 
         async def _fetch_config_operation() -> Result[SystemConfig, str]:
@@ -83,11 +85,24 @@ class ConfigService:
                 return create_failure(f"Failed to Fetch Configuration: {str(e)}")
 
         self.logger.info(f"Loading Configuration From {self.config_url}")
-        return await with_exponential_backoff(
+        config = await with_exponential_backoff(
             operation=_fetch_config_operation,
             logger=self.logger,
             operation_name="Fetch Configuration",
         )
+
+        if config.status == "failure":
+            return create_failure(config.error)
+
+        weights_result = await ensure_weights_cached(
+            weights_data_key=config.data.weights_data_key,
+            storage_service=storage_service,
+        )
+
+        if weights_result.status == "failure":
+            return create_failure(weights_result.error)
+
+        return create_success(config.data)
 
 
 # Task execution service
@@ -157,7 +172,7 @@ async def lifespan(app: FastAPI):
         heartbeat_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
     )
 
-    config_result = await config_service.load_config()
+    config_result = await config_service.load_config(app.state.storage_service)
     if config_result.status == "failure":
         logger.error(
             f"All Attempts To Load Initial Configuration Failed: {config_result.error}"
@@ -165,19 +180,6 @@ async def lifespan(app: FastAPI):
         raise Exception(f"Failed To Load Initial Configuration: {config_result.error}")
     else:
         logger.info("Successfully Loaded Initial Configuration")
-
-    storage_service = StorageService()
-
-    weights_result = await ensure_weights_cached(
-        weights_data_key=config_result.data.weights_data_key,
-        storage_service=storage_service,
-    )
-
-    if weights_result.status == "failure":
-        logger.error(f"Failed To Ensure Weights Are Cached: {weights_result.error}")
-        raise Exception(f"Failed To Ensure Weights Are Cached: {weights_result.error}")
-    else:
-        logger.info("Successfully Ensured Weights Are Cached")
 
     yield
 
@@ -247,6 +249,12 @@ def get_task_service(
     return TaskService(logger, listener_url)
 
 
+# Dependency for storage service
+def get_storage_service():
+    """Get The Storage Service Instance."""
+    return app.state.storage_service
+
+
 @app.post(
     "/load_config",
     response_model=ConfigResponse,
@@ -254,9 +262,10 @@ def get_task_service(
 )
 async def load_config(
     config_service: ConfigService = Depends(get_config_service),
+    storage_service: StorageService = Depends(get_storage_service),
 ):
     """Load Configuration From External Service."""
-    result = await config_service.load_config()
+    result = await config_service.load_config(storage_service)
 
     if result.status == "failure":
         raise HTTPException(status_code=500, detail=result.error)
@@ -398,6 +407,7 @@ def main():
 
     # Store environment config in app state
     app.state.env_config = env_result.data
+    app.state.storage_service = StorageService()
 
     # Start the API server
     logger = get_logger()
