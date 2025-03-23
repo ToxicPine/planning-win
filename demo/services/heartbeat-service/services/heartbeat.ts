@@ -52,11 +52,18 @@ export class HeartbeatService {
     url: string;
     clientObject: ReturnType<typeof hc<AppType>>;
   }[];
-  private nodeStatus: ComputeStatus = {
-    status: "idle",
+  private _nodeStatus: ComputeStatus = {
+    status: "offline",
     hasCapacity: true,
     lastUpdated: Math.floor(Date.now() / 1000),
   };
+
+  /**
+   * Get the current node status
+   */
+  public get nodeStatus(): ComputeStatus {
+    return this._nodeStatus;
+  }
 
   constructor(logger: Logger, oracleUrls: string[]) {
     this.logger = logger;
@@ -70,7 +77,7 @@ export class HeartbeatService {
    * Updates the node status based on compute service updates
    */
   updateNodeStatus(status: ComputeStatus): void {
-    this.nodeStatus = {
+    this._nodeStatus = {
       ...status,
       lastUpdated: Math.floor(Date.now() / 1000),
     };

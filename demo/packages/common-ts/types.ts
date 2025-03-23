@@ -188,7 +188,7 @@ export interface PromiseRejectedResult {
  * Status update from compute service to heartbeat service
  */
 export interface ComputeStatus {
-  status: "idle" | "busy" | "error";
+  status: "offline" | "idle" | "busy" | "error";
   hasCapacity: boolean;
   lastUpdated: number; // timestamp
 }

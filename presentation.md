@@ -1,3 +1,7 @@
+---
+marp: true
+---
+
 # SplitUp: Large AI Model Marketplace on Solana
 
 > **TLDR: A Solana-powered marketplace where consumer GPU owners earn by running specialized portions of large AI models that wouldn't otherwise fit on their hardware.**

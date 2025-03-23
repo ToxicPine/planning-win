@@ -80,7 +80,16 @@ async function initialize(): Promise<void> {
 
     // Set up heartbeat interval
     const intervalMs = config.heartbeatIntervalMs;
-    setInterval(() => heartbeatService.sendHeartbeats(), intervalMs);
+    setInterval(() => {
+      if (heartbeatService.nodeStatus.status !== "idle") {
+        heartbeatService.sendHeartbeats();
+      } else {
+        logger.info(
+          { status: heartbeatService.nodeStatus.status },
+          "Skipping Heartbeat - node is not idle",
+        );
+      }
+    }, intervalMs);
 
     // Send initial heartbeat
     heartbeatService.sendHeartbeats().catch((error: unknown) => {
