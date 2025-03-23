@@ -1,8 +1,10 @@
 # cli/commands.py
 import click
+import time
 from pydantic import ValidationError
 from .models import NodeRegistration, NodeSpecialization, ModelRegistration, ModelExecution
 from .config import settings
+from .services import ComputeServiceClient
 
 @click.group()
 def cli():
@@ -32,7 +34,10 @@ def register():
 def specialize(model_id, tasks):
     """Specialize a node in specific tasks."""
     try:
-        data = NodeSpecialization(model_id=model_id, tasks=tasks)
+        if not model_id or not tasks:
+            click.echo("Model ID and tasks cannot be empty")
+            raise SystemExit(1)
+        data = NodeSpecialization(model_id=model_id, tasks=tasks.split(','))
         # Add logic to specialize node based on validated input
         click.echo(f"Specializing node for model {data.model_id} with tasks: {data.tasks}")
     except ValidationError as e:
@@ -45,7 +50,7 @@ def specialize(model_id, tasks):
 def preload(model_id, tasks):
     """Preload model weights for performance."""
     try:
-        data = NodeSpecialization(model_id=model_id, tasks=tasks)
+        data = NodeSpecialization(model_id=model_id, tasks=tasks.split(','))
         # Add logic to preload model weights
         click.echo(f"Preloading weights for model {data.model_id} on tasks: {data.tasks}")
     except ValidationError as e:
@@ -54,20 +59,35 @@ def preload(model_id, tasks):
 
 @node.command()
 def start():
-    """Start all node services."""
-    # Implement logic to start services (heartbeat, listener, compute)
-    click.echo("Starting node services...")
+    """Start the node and begin processing tasks."""
+    try:
+        client = ComputeServiceClient()
+        result = client.execute_task("node_start")
+        click.echo(f"Node started successfully: {result}")
+    except Exception as e:
+        click.echo(f"Error starting node: {e}")
+        raise SystemExit(1)
 
 @node.command()
 def status():
-    """Check current node status."""
-    # Implement logic to retrieve node status
-    click.echo("Fetching node status...")
+    """Check the status of the node."""
+    try:
+        client = ComputeServiceClient()
+        health = client.get_health_status()
+        click.echo(f"Node status: {health['health']['status']}")
+        click.echo(f"Uptime: {health['health']['uptime']} seconds")
+        click.echo(f"Version: {health['health']['version']}")
+        click.echo("Details:")
+        for key, value in health['health']['details'].items():
+            click.echo(f"  {key}: {value}")
+    except Exception as e:
+        click.echo(f"Error checking node status: {e}")
+        raise SystemExit(1)
 
 # Model Deployment Commands
 @cli.group()
 def model():
-    """Model deployment commands."""
+    """Model management commands."""
     pass
 
 @model.command()
@@ -79,6 +99,9 @@ def model():
 def register(model_path, target_vram, name, description, framework):
     """Register a model with the SplitUp network."""
     try:
+        if not all([model_path, name, description, framework]) or target_vram <= 0:
+            click.echo("All fields must be non-empty and target VRAM must be positive")
+            raise SystemExit(1)
         data = ModelRegistration(
             model_path=model_path,
             target_vram=target_vram,
@@ -99,19 +122,16 @@ def register(model_path, target_vram, name, description, framework):
 @click.option('--input-file', required=True, type=str, help='Path to input file')
 @click.option('--output-file', type=str, help='Path to output file (optional)')
 def test(model_id, input_file, output_file):
-    """Test model execution on the network."""
+    """Test a model with the specified input file."""
     try:
-        data = ModelExecution(
-            model_id=model_id,
-            input_file=input_file,
-            output_file=output_file
-        )
-        # Add logic to test model execution
-        click.echo(f"Testing model execution for {data.model_id}")
-        click.echo(f"Input file: {data.input_file}")
-        click.echo(f"Output file: {data.output_file if data.output_file else 'None'}")
-    except ValidationError as e:
-        click.echo(f"Validation error: {e}")
+        client = ComputeServiceClient()
+        parameters = [input_file]
+        if output_file:
+            parameters.append(output_file)
+        result = client.execute_task("model_test", parameters)
+        click.echo(f"Model test started: {result}")
+    except Exception as e:
+        click.echo(f"Error testing model: {e}")
         raise SystemExit(1)
 
 if __name__ == '__main__':

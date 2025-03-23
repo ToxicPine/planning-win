@@ -12,7 +12,8 @@ dependencies = [
     "fastapi>=0.115.11",
     "starlette>=0.46.1",
     "anyio>=4.9.0",
-    "typing-extensions>=4.12.2"
+    "typing-extensions>=4.12.2",
+    "httpx>=0.27.0"
 ]
 
 [project.scripts]
