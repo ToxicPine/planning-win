@@ -27,6 +27,8 @@ services:
       dockerfile: ../services/listener-service/Dockerfile
     working_dir: /app
     environment:
+      - SPLITUP_LISTENER_SERVICE_PORT=${SPLITUP_LISTENER_SERVICE_PORT:-5058}
+      - SPLITUP_CLIENT_SOLANA_PRIVATE_KEY=${SPLITUP_CLIENT_SOLANA_PRIVATE_KEY}
       - SPLITUP_LISTENER_RPC_URL=${SPLITUP_LISTENER_RPC_URL}
     networks:
       - internal-network
