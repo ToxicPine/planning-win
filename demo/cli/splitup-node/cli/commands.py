@@ -351,13 +351,15 @@ def test(model_id, input_file, output_file):
         raise SystemExit(1)
 
 @model.command()
-@click.option('--model-id', required=True, type=str, help='Model identifier')
-@click.option('--shape', default='2,2', type=str, help='Shape of tensors (comma-separated)')
-@click.option('--dtype', default='float32', type=click.Choice(['float32', 'float16', 'int32', 'uint8']), help='Data type of tensors')
-@click.option('--output', default='output.pkl', type=str, help='Output file path')
-def test_tensors(model_id, shape, dtype, output):
-    """Test tensor operations with placeholders."""
+def test_tensors():
+    """Test tensor operations with placeholders using default parameters."""
     try:
+        # Default parameters
+        model_id = "llama-70b"
+        shape = "2,2"
+        dtype = "float32"
+        output = "output.pkl"
+
         print_section_header("Tensor Operations Test")
         print_metric("Model ID", model_id)
         print_metric("Shape", shape)
@@ -444,15 +446,15 @@ def test_tensors(model_id, shape, dtype, output):
 
         with click.progressbar(length=100, label="Executing computation") as bar:
             # First half of the progress
-            for _ in range(10):
+            for _ in range(20):
                 time.sleep(0.1)
-                bar.update(5)
+                bar.update(2.5)
             # Stall at 50%
-            time.sleep(1.5)
+            time.sleep(3.0)
             # Second half of the progress
-            for _ in range(10):
+            for _ in range(20):
                 time.sleep(0.2)
-                bar.update(5)
+                bar.update(2.5)
         
         # Execute with the placeholder value
         with Context():
