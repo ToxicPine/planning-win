@@ -29,6 +29,14 @@ pub struct RegisterNode<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct UpdateStake<'info> {
+    #[account(mut)]
+    pub node: Account<'info, Node>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+}
+
 // Task Registry Accounts
 #[derive(Accounts)]
 pub struct RegisterTask<'info> {
@@ -79,4 +87,9 @@ pub struct CancelExecution<'info> {
     pub user: Signer<'info>,
     #[account(mut)]
     pub execution: Account<'info, Execution>,
+}
+
+#[derive(Accounts)]
+pub struct GetSpecializedNodes<'info> {
+    pub authority: Signer<'info>,
 }

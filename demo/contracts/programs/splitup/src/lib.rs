@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
 use std::collections::HashSet;
 
-pub mod accounts;
 pub mod state;
+pub mod validation_accounts;
 
-use accounts::*;
 use state::*;
+use validation_accounts::*;
 
 declare_id!("11111111111111111111111111111111");
 
@@ -40,23 +40,19 @@ pub mod splitup {
     }
 
     pub fn stake_collateral(ctx: Context<UpdateStake>, amount: u64) -> Result<()> {
+        require!(amount > 0, NodeError::InvalidStake);
+
+        let node_info = ctx.accounts.node.to_account_info();
+        let owner_info = ctx.accounts.owner.to_account_info();
+
         let node = &mut ctx.accounts.node;
         require!(
             node.owner == ctx.accounts.owner.key(),
             NodeError::Unauthorized
         );
-        require!(amount > 0, NodeError::InvalidStake);
 
-        **ctx
-            .accounts
-            .owner
-            .to_account_info()
-            .try_borrow_mut_lamports()? -= amount;
-        **ctx
-            .accounts
-            .node
-            .to_account_info()
-            .try_borrow_mut_lamports()? += amount;
+        **owner_info.try_borrow_mut_lamports()? -= amount;
+        **node_info.try_borrow_mut_lamports()? += amount;
 
         node.info.stake_amount = node
             .info
@@ -67,6 +63,9 @@ pub mod splitup {
     }
 
     pub fn withdraw_collateral(ctx: Context<UpdateStake>, amount: u64) -> Result<()> {
+        let node_info = ctx.accounts.node.to_account_info();
+        let owner_info = ctx.accounts.owner.to_account_info();
+
         let node = &mut ctx.accounts.node;
         require!(
             node.owner == ctx.accounts.owner.key(),
@@ -77,16 +76,8 @@ pub mod splitup {
             NodeError::InsufficientStake
         );
 
-        **ctx
-            .accounts
-            .node
-            .to_account_info()
-            .try_borrow_mut_lamports()? -= amount;
-        **ctx
-            .accounts
-            .owner
-            .to_account_info()
-            .try_borrow_mut_lamports()? += amount;
+        **node_info.try_borrow_mut_lamports()? -= amount;
+        **owner_info.try_borrow_mut_lamports()? += amount;
 
         node.info.stake_amount -= amount;
         Ok(())
@@ -149,15 +140,16 @@ pub mod splitup {
             SplitupError::InvalidExecutionStatus
         );
 
-        // Verify the node is assigned to this task
-        let assigned_task = execution
+        let node_key = ctx.accounts.node.key();
+        let is_assigned = execution
             .assigned_tasks
             .iter()
-            .find(|t| t.task_id == task_id && t.node == ctx.accounts.node.key())
-            .ok_or(SplitupError::TaskNotAssigned)?;
+            .any(|t| t.task_id == task_id && t.node == node_key);
+
+        require!(is_assigned, SplitupError::TaskNotAssigned);
 
         execution.completed_tasks.push(TaskResult {
-            task_id: assigned_task.task_id,
+            task_id,
             output_uris,
         });
 
@@ -182,6 +174,28 @@ pub mod splitup {
 
         execution.status = ExecutionStatus::Canceled;
         Ok(())
+    }
+
+    pub fn get_specialized_nodes(
+        ctx: Context<GetSpecializedNodes>,
+        task_id: u64,
+    ) -> Result<Vec<Pubkey>> {
+        let mut specialized_nodes = Vec::new();
+
+        for acc in ctx.remaining_accounts {
+            if let Ok(node) = Account::<Node>::try_from(acc) {
+                if node
+                    .info
+                    .specializations
+                    .iter()
+                    .any(|s| s.task_id == task_id)
+                {
+                    specialized_nodes.push(node.owner);
+                }
+            }
+        }
+
+        Ok(specialized_nodes)
     }
 }
 
@@ -277,4 +291,10 @@ pub enum SplitupError {
     TaskNotAssigned,
     #[msg("Unauthorized")]
     Unauthorized,
+}
+
+#[derive(Accounts)]
+pub struct GetSpecializedNodes<'info> {
+    /// CHECK: This account is not written to
+    pub authority: UncheckedAccount<'info>,
 }

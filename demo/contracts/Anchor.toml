@@ -23,5 +23,6 @@ members = [
   "programs/model_registry",
   "programs/node_registry",
   "programs/task_registry",
-  "programs/model_execution"
+  "programs/model_execution",
+  "programs/split_up"
 ]
