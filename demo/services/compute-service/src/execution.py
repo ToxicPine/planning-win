@@ -1,11 +1,19 @@
 import asyncio
 import logging
 import time
-from typing import Dict, Optional
+import pathlib
+import uuid
+import tempfile
+from typing import Dict, Optional, List
 from .models import TaskExecutionRequest, ComputeResult, TaskScheduledData
 from .result import create_success, create_failure, Result
 from .notification import notify_completed_execution
 from .storage import StorageService
+from .tinygrad_backend.core import GraphProgram
+from .tinygrad_backend.core import execute_graph_on_gpu
+from .tinygrad_backend.types import ActualTensors
+from .tinygrad_backend.serialize_tensors import TensorSerializer
+from tinygrad import Tensor
 
 
 # Task execution service
@@ -85,20 +93,56 @@ class ExecutionService:
         4. Return the compute result
         """
         try:
-            # Simulate some work
-            result = await self.storage_service.get_object(request.task_storage_key)
-            if result.status == "failure":
-                return create_failure(result.error)
+            # Get Task Data
+            task_data = await self.storage_service.get_object(request.task_storage_key)
+            if task_data.status == "failure":
+                return create_failure(task_data.error)
 
-            # TODO: ML Implementation Here, Must Put Result In Result Directory
-            upload_from = "MOCK"
-            ###
+            # Get Input Tensors
+            input_tensor_paths: List[pathlib.Path] = []
 
-            key = f"results/{request.execution_id}/task_{request.task_id}.pt"
+            for input_key in request.input_storage_keys:
+                input_data = await self.storage_service.get_object(input_key)
+                if input_data.status == "failure":
+                    return create_failure(input_data.error)
+                else:
+                    input_tensor_paths.append(input_data.data)
+
+            with open(task_data.data, "rb") as f:
+                imported_task = f.read()
+
+            exported_task = GraphProgram.from_bytes(imported_task)
+            if isinstance(exported_task, ValueError):
+                return create_failure(f"Error Importing Task: {exported_task}")
+
+            # Import Input Tensors
+            input_tensors: ActualTensors = {}
+            for path in input_tensor_paths:
+                with open(path, "rb") as f:
+                    tensor_data = f.read()
+                    tensor = TensorSerializer.tensor_from_bytes(tensor_data)
+                    input_tensors[path.stem] = tensor
+
+            result_tensor = execute_graph_on_gpu(exported_task, input_tensors)
+
+            if isinstance(result_tensor, ValueError):
+                return create_failure(f"Error Executing Task: {result_tensor}")
+
+            # Upload Result Tensor
+            key = f"results/task_{request.task_id}/{request.execution_id}/{uuid.uuid4()}.pt"
+
+            # Create a temporary file to store the serialized tensor
+            temp_dir = pathlib.Path(tempfile.gettempdir())
+            tensor_file = temp_dir / f"result_{request.execution_id}.tensor"
+
+            # Serialize the tensor to bytes and save to the temp file
+            serialized_tensor = TensorSerializer.tensor_to_bytes(result_tensor)
+            with open(tensor_file, "wb") as f:
+                f.write(serialized_tensor)
 
             tensor_url = await self.storage_service.put_object(
                 key=key,
-                file_path=upload_from,
+                file_path=tensor_file,
             )
 
             if tensor_url.status == "failure":

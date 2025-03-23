@@ -51,6 +51,7 @@ class TaskExecutionRequest(BaseModel):
     execution_id: str
     task_id: str
     task_storage_key: str
+    input_storage_keys: List[str]
     parameters: List[str] = []
 
     @model_validator(mode="after")

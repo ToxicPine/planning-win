@@ -6,5 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.115.11",
+    "pathlib>=1.0.1",
     "pydantic>=2.10.6",
+    "tinygrad>=0.10.2",
+    "uuid>=1.30",
 ]
