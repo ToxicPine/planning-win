@@ -25,8 +25,9 @@ from .models import (
 )
 from .result import create_success, create_failure, Result
 from .logger import setup_logger
-from .environment import load_env_config
+from .environment import load_env_config, EnvSettings
 from .util import with_exponential_backoff
+from .storage import StorageService
 
 # Type variables for generic backoff function
 T = TypeVar("T")
@@ -46,39 +47,6 @@ def get_logger() -> logging.Logger:
 
 # In-memory config store
 global_config: Optional[SystemConfig] = None
-
-
-# Environment Configuration
-class EnvSettings(BaseModel):
-    """Environment Settings With Validation."""
-
-    SPLITUP_COMPUTE_SERVICE_NAME: str = "compute-service"
-    SPLITUP_COMPUTE_SERVICE_LOG_LEVEL: str = "INFO"
-    SPLITUP_COMPUTE_SERVICE_API_PORT: int = 6068
-    SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL: str
-    SPLITUP_COMPUTE_SERVICE_LISTENER_URL: str
-    SPLITUP_COMPUTE_SERVICE_CONFIG_URL: str
-
-    model_config = {"validate_assignment": True}
-
-    @model_validator(mode="after")
-    def validate_urls(self):
-        """Validate That URLs Are Valid."""
-        urls = [
-            self.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
-            self.SPLITUP_COMPUTE_SERVICE_LISTENER_URL,
-            self.SPLITUP_COMPUTE_SERVICE_CONFIG_URL,
-        ]
-
-        for url in urls:
-            try:
-                result = urlparse(url)
-                if not all([result.scheme, result.netloc]):
-                    raise ValueError(f"URL {url} Must Have A Scheme And Host")
-            except Exception as e:
-                raise ValueError(f"Invalid URL {url}: {str(e)}")
-
-        return self
 
 
 # Notification service
