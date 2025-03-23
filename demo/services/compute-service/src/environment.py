@@ -1,5 +1,6 @@
 from .result import create_success, create_failure, Result
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
+from urllib.parse import urlparse
 from typing import TypeVar, Type, Optional, Callable, Any, Dict
 import os
 
@@ -61,3 +62,40 @@ def create_optional_model(model_class: Type[BaseModel]) -> Type[BaseModel]:
     )
 
     return new_class
+
+
+# Environment Configuration
+class EnvSettings(BaseModel):
+    """Environment Settings With Validation."""
+
+    SPLITUP_STORAGE_S3_BUCKET: str
+    SPLITUP_STORAGE_API_ENDPOINT: str
+    SPLITUP_STORAGE_API_KEY: str
+    SPLITUP_STORAGE_REGION: str = "eu-west-2"
+    SPLITUP_COMPUTE_SERVICE_NAME: str = "compute-service"
+    SPLITUP_COMPUTE_SERVICE_LOG_LEVEL: str = "INFO"
+    SPLITUP_COMPUTE_SERVICE_API_PORT: int = 6068
+    SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL: str
+    SPLITUP_COMPUTE_SERVICE_LISTENER_URL: str
+    SPLITUP_COMPUTE_SERVICE_CONFIG_URL: str
+
+    model_config = {"validate_assignment": True}
+
+    @model_validator(mode="after")
+    def validate_urls(self):
+        """Validate That URLs Are Valid."""
+        urls = [
+            self.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
+            self.SPLITUP_COMPUTE_SERVICE_LISTENER_URL,
+            self.SPLITUP_COMPUTE_SERVICE_CONFIG_URL,
+        ]
+
+        for url in urls:
+            try:
+                result = urlparse(url)
+                if not all([result.scheme, result.netloc]):
+                    raise ValueError(f"URL {url} Must Have A Scheme And Host")
+            except Exception as e:
+                raise ValueError(f"Invalid URL {url}: {str(e)}")
+
+        return self
