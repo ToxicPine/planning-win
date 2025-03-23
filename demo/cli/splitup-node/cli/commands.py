@@ -383,13 +383,9 @@ def test_tensors(model_id, shape, dtype, output):
         # Parse shape
         tensor_shape = tuple(int(dim) for dim in shape.split(","))
 
-        # Generate 5 random tensors
+        # Generate 5 random tensors instantly
         tensors: List[Tensor] = []
         for i in range(5):
-            with click.progressbar(length=100, label=f"Generating tensor_{i}") as bar:
-                for _ in range(20):
-                    time.sleep(0.05)
-                    bar.update(5)
             tensor = Tensor.uniform(*tensor_shape, low=0, high=1, dtype=tensor_dtype)
             tensors.append(tensor)
             print_metric(f"tensor_{i}", f"shape={tensor_shape}, dtype={dtype}")
@@ -406,9 +402,10 @@ def test_tensors(model_id, shape, dtype, output):
         # Create placeholder and add with first 4 tensors
         print_section_header("Placeholder Operations")
         with click.progressbar(length=100, label="Creating placeholder") as bar:
-            for _ in range(20):
-                time.sleep(0.1)
-                bar.update(5)
+            for _ in range(10):
+                time.sleep(0.05)
+                bar.update(10)
+        print_metric("Placeholder", f"shape={tensor_shape}, dtype={dtype}")
         
         # Create a placeholder tensor
         placeholder = Tensor.empty(*tensor_shape, dtype=tensor_dtype)
@@ -446,8 +443,15 @@ def test_tensors(model_id, shape, dtype, output):
             imported_sched = f.read().decode()
 
         with click.progressbar(length=100, label="Executing computation") as bar:
-            for _ in range(20):
+            # First half of the progress
+            for _ in range(10):
                 time.sleep(0.1)
+                bar.update(5)
+            # Stall at 50%
+            time.sleep(1.5)
+            # Second half of the progress
+            for _ in range(10):
+                time.sleep(0.2)
                 bar.update(5)
         
         # Execute with the placeholder value
