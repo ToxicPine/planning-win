@@ -7,17 +7,20 @@ from .config import settings
 from .services import ComputeServiceClient
 
 LATTICE_LOGO = """
-██╗      █████╗ ████████╗████████╗██╗ ██████╗███████╗
-██║     ██╔══██╗╚══██╔══╝╚══██╔══╝██║██╔════╝██╔════╝
-██║     ██║  ██║   ██║      ██║   ██║██║     █████╗  
-██║     ██║  ██║   ██║      ██║   ██║██║     ██╔══╝  
-███████╗██████╔╝   ██║      ██║   ██║╚██████╗███████╗
-╚══════╝╚═════╝    ╚═╝      ╚═╝   ╚═╝ ╚═════╝╚══════╝
+▄█          ▄████████     ███         ███      ▄█   ▄████████    ▄████████ 
+███         ███    ███ ▀█████████▄ ▀█████████▄ ███  ███    ███   ███    ███ 
+███         ███    ███    ▀███▀▀██    ▀███▀▀██ ███▌ ███    █▀    ███    █▀  
+███         ███    ███     ███   ▀     ███   ▀ ███▌ ███         ▄███▄▄▄     
+███       ▀███████████     ███         ███     ███▌ ███        ▀▀███▀▀▀     
+███         ███    ███     ███         ███     ███  ███    █▄    ███    █▄  
+███▌    ▄   ███    ███     ███         ███     ███  ███    ███   ███    ███ 
+█████▄▄██   ███    █▀     ▄████▀      ▄████▀   █▀   ████████▀    ██████████ 
+▀
 """
 
 def print_header():
     """Print the Lattice logo and header."""
-    click.echo(click.style(LATTICE_LOGO, fg="cyan"))
+    click.echo(click.style(LATTICE_LOGO, fg="red"))
     click.echo(click.style("=" * 80, fg="blue"))
     click.echo(click.style("SplitUp Node Management CLI", fg="green", bold=True))
     click.echo(click.style("=" * 80, fg="blue"))
