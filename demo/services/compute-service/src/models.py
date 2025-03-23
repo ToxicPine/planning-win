@@ -107,3 +107,17 @@ class SystemConfigUpdateRequest(BaseModel):
     log_level: Optional[str] = None
     api_port: Optional[int] = None
     notification_url: Optional[str] = None
+
+
+# Compute Result Models
+class ComputeResult(BaseModel):
+    """Result of a compute task."""
+
+    result: str
+    status: Literal["success", "failure"]
+
+
+class ActiveExecutionsResponse(BaseResponse):
+    """Response model for active task executions."""
+
+    data: Dict[str, str]

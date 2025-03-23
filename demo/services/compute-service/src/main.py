@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from fastapi import Depends, FastAPI, HTTPException, Body
 from pydantic import BaseModel, model_validator
 from functools import lru_cache
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, Dict
 from .models import (
     ComputeStatus,
     StatusUpdateResponse,
@@ -22,12 +22,16 @@ from .models import (
     HealthStatus,
     HealthCheckResponse,
     TaskScheduledData,
+    ComputeResult,
+    BaseResponse,
+    ActiveExecutionsResponse,
 )
 from .result import create_success, create_failure, Result
 from .logger import setup_logger
 from .environment import load_env_config, EnvSettings
 from .util import with_exponential_backoff
-from .storage import StorageService
+from .execution import ExecutionService
+from .notification import notify_status_update
 
 # Type variables for generic backoff function
 T = TypeVar("T")
@@ -47,37 +51,6 @@ def get_logger() -> logging.Logger:
 
 # In-memory config store
 global_config: Optional[SystemConfig] = None
-
-
-# Notification service
-async def notify_status_update(
-    status: ComputeStatus, heartbeat_url: str, logger: logging.Logger
-) -> Result[bool, str]:
-    """Notify Heartbeat Service About Compute Status."""
-
-    async def _notify_operation() -> Result[bool, str]:
-        try:
-            logger.debug(f"Sending status update to {heartbeat_url}")
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    heartbeat_url,
-                    json=status.model_dump(),
-                )
-                response.raise_for_status()
-                status_response = StatusUpdateResponse.model_validate(response.json())
-
-                if status_response.success:
-                    return create_success(True)
-                else:
-                    return create_failure(status_response.message)
-        except Exception as e:
-            return create_failure(f"Failed to Send Status Update: {str(e)}")
-
-    return await with_exponential_backoff(
-        operation=_notify_operation,
-        logger=logger,
-        operation_name=f"notify status '{status.status}'",
-    )
 
 
 # Configuration service
@@ -122,49 +95,33 @@ class TaskService:
     def __init__(self, logger: logging.Logger, listener_url: str):
         self.logger = logger
         self.listener_url = listener_url
+        self.execution_service = ExecutionService(logger, listener_url)
 
     async def schedule_task(
         self, request: TaskExecutionRequest
     ) -> Result[TaskScheduledResponse, str]:
-        """
-        Schedule a task for execution.
-
-        In a real implementation, this would:
-        1. Queue the task for background processing
-        2. Process the task asynchronously
-        3. Report results back to the listener when complete
-        """
+        """Schedule a Task for Execution."""
         self.logger.info(
-            f"Scheduling task: {request.task_id} with execution_id: {request.execution_id}"
+            f"Scheduling Task: {request.task_id} With Execution ID: {request.execution_id}"
         )
 
         try:
-            # Record when the task was scheduled
-            scheduled_at = int(time.time())
+            # Enqueue the task for execution
+            result = await self.execution_service.enqueue_task(request)
 
-            # Here you would typically:
-            # 1. Add the task to a queue or database
-            # 2. Trigger background processing
-            # 3. Set up result reporting mechanisms
+            if result.status == "failure":
+                return create_failure(result.error)
 
-            # For now, we'll just log that we received the task
-            self.logger.info(f"Task {request.task_id} Scheduled Successfully")
-
-            # Return the basic scheduling information
             return create_success(
                 TaskScheduledResponse(
                     success=True,
                     message="Task scheduled successfully",
-                    data=TaskScheduledData(
-                        execution_id=request.execution_id,
-                        task_id=request.task_id,
-                        scheduled_at=scheduled_at,
-                    ),
+                    data=result.data,
                 )
             )
         except Exception as e:
-            self.logger.error(f"Failed to schedule task: {str(e)}")
-            return create_failure(f"Failed to schedule task: {str(e)}")
+            self.logger.error(f"Failed To Schedule Task: {str(e)}")
+            return create_failure(f"Failed To Schedule Task: {str(e)}")
 
 
 # Application setup
@@ -309,6 +266,72 @@ async def task_execution(
         raise HTTPException(status_code=500, detail=result.error)
 
     return result.data
+
+
+@app.get(
+    "/execution/{execution_id}/status",
+    response_model=ComputeResult,
+    responses={
+        200: {"model": ComputeResult},
+        404: {"model": ErrorResponse},
+        500: {"model": ErrorResponse},
+    },
+)
+async def get_execution_status(
+    execution_id: str,
+    task_service: TaskService = Depends(get_task_service),
+):
+    """Get the current status of a task execution."""
+    result = await task_service.execution_service.get_execution_status(execution_id)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Task execution not found")
+
+    return result
+
+
+@app.post(
+    "/execution/{execution_id}/cancel",
+    response_model=BaseResponse,
+    responses={
+        200: {"model": BaseResponse},
+        404: {"model": ErrorResponse},
+        500: {"model": ErrorResponse},
+    },
+)
+async def cancel_execution(
+    execution_id: str,
+    task_service: TaskService = Depends(get_task_service),
+):
+    """Cancel a running task execution."""
+    result = await task_service.execution_service.cancel_execution(execution_id)
+
+    if result.status == "failure":
+        if "not found" in result.error.lower():
+            raise HTTPException(status_code=404, detail=result.error)
+        raise HTTPException(status_code=500, detail=result.error)
+
+    return BaseResponse(
+        success=True, message=f"Task Execution {execution_id} Cancelled Successfully"
+    )
+
+
+@app.get(
+    "/executions/active",
+    response_model=ActiveExecutionsResponse,
+    responses={200: {"model": ActiveExecutionsResponse}, 500: {"model": ErrorResponse}},
+)
+async def list_active_executions(
+    task_service: TaskService = Depends(get_task_service),
+):
+    """List all currently active task executions."""
+    active_executions = await task_service.execution_service.list_active_executions()
+
+    return ActiveExecutionsResponse(
+        success=True,
+        message=f"Found {len(active_executions)} Active Task Executions",
+        data=active_executions,
+    )
 
 
 @app.get(

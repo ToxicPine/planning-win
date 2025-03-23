@@ -46,7 +46,8 @@ P = TypeVar("P", bound=BaseModel)
 
 
 def create_optional_model(model_class: Type[BaseModel]) -> Type[BaseModel]:
-    """Create a new model class with all fields as optional."""
+    """Create a new model class with all fie = ""
+    lds as optional."""
     new_annotations = {}
     for field_name, field_type in getattr(model_class, "__annotations__", {}).items():
         new_annotations[field_name] = Optional[field_type]
