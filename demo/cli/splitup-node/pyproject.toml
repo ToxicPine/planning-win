@@ -1,14 +1,18 @@
 [project]
 name = "compute-node-cli"
 version = "0.1.0"
-description = "A command-line interface for managing compute nodes."
+description = "A command-line interface for managing compute nodes and model deployments."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pydantic>=2.10.6",
     "pydantic-settings>=2.0.0",
     "click",
-    "python-dotenv"
+    "python-dotenv",
+    "fastapi>=0.115.11",
+    "starlette>=0.46.1",
+    "anyio>=4.9.0",
+    "typing-extensions>=4.12.2"
 ]
 
 [project.scripts]

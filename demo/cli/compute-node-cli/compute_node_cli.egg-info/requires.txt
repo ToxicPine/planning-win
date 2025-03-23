@@ -1,4 +1,0 @@
-pydantic>=2.10.6
-pydantic-settings>=2.0.0
-click
-python-dotenv

@@ -1,0 +1,182 @@
+# SplitUp Node Management CLI
+
+A command-line interface for managing compute nodes and model deployments in the SplitUp network.
+
+## Overview
+
+The SplitUp Node Management CLI enables:
+
+1. Node Operators to:
+   - Register compute nodes on the SplitUp network
+   - Specialize in specific ML model tasks
+   - Configure node settings and weight management
+   - Start and monitor node services
+
+2. Model Developers to:
+   - Register large models that would not fit on single consumer GPUs
+   - Automatically partition models into smaller tasks based on VRAM constraints
+   - Define explicit tensor interfaces between tasks
+   - Register model weights to decentralized storage
+   - Create an immutable model DAG structure on the blockchain
+
+## Setup
+
+1. Make sure you have Python 3.13 or higher installed.
+
+2. Create and activate a virtual environment:
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate  # On Unix/macOS
+# or
+.venv\Scripts\activate  # On Windows
+```
+
+3. Install the CLI in development mode:
+```bash
+pip install -e .
+```
+
+## Configuration
+
+The CLI uses environment variables with the following prefixes:
+
+### Node Settings (`SPLITUP_NODE_`)
+- `SPLITUP_NODE_SPECIALIZATION`: Node specialization type (optional)
+
+### Model Deployment Settings (`SPLITUP_CLIENT_`)
+- `SPLITUP_CLIENT_S3_API_KEY`: Your S3 API key for model weight storage
+- `SPLITUP_CLIENT_SOLANA_PRIVATE_KEY`: Base58 Solana private key
+- `SPLITUP_CLIENT_TARGET_VRAM`: Target VRAM constraint in GB (default: 12)
+- `SPLITUP_CLIENT_MODEL_FRAMEWORK`: Model framework (default: tinygrad)
+
+## Available Commands
+
+### Node Management Commands
+
+#### `node register`
+
+Register a new compute node with the SplitUp network. A fixed stake amount of $100 is required.
+
+```bash
+splitup-node node register
+```
+
+#### `node specialize`
+
+Declare which ML model tasks your node will handle.
+
+```bash
+splitup-node node specialize --model-id <model> --tasks <task_ids>
+```
+
+**Options:**
+- `--model-id`: Identifier of the ML model (e.g., llama-70b) (required)
+- `--tasks`: Comma-separated list of task IDs this node will handle (required)
+
+**Example:**
+```bash
+splitup-node node specialize --model-id llama-70b --tasks task1,task2
+```
+
+#### `node preload`
+
+Preload model weights for better performance during task execution.
+
+```bash
+splitup-node node preload --model-id <model> --tasks <task_ids>
+```
+
+**Options:**
+- `--model-id`: Identifier of the ML model to preload (required)
+- `--tasks`: Comma-separated list of task IDs whose weights should be preloaded (required)
+
+**Example:**
+```bash
+splitup-node node preload --model-id llama-70b --tasks task1,task2
+```
+
+#### `node start`
+
+Start all node services including heartbeat, task listener, and compute services.
+
+```bash
+splitup-node node start
+```
+
+#### `node status`
+
+Check the current status of your node and its services.
+
+```bash
+splitup-node node status
+```
+
+### Model Deployment Commands
+
+#### `model register`
+
+Register a new model with the SplitUp network.
+
+```bash
+splitup-node model register \
+  --model-path <path> \
+  --target-vram <gb> \
+  --name <name> \
+  --description <description> \
+  --framework <framework>
+```
+
+**Options:**
+- `--model-path`: Path to the model file (required)
+- `--target-vram`: Target VRAM constraint in GB (required)
+- `--name`: Model name (required)
+- `--description`: Model description (required)
+- `--framework`: Model framework (e.g., tinygrad) (required)
+
+**Example:**
+```bash
+splitup-node model register \
+  --model-path llama-70b.pkl \
+  --target-vram 12 \
+  --name "LLaMA 70B" \
+  --description "Meta's 70B Parameter LLM" \
+  --framework tinygrad
+```
+
+#### `model test`
+
+Test model execution on the network.
+
+```bash
+splitup-node model test \
+  --model-id <model_id> \
+  --input-file <path> \
+  [--output-file <path>]
+```
+
+**Options:**
+- `--model-id`: Model identifier (required)
+- `--input-file`: Path to input file (required)
+- `--output-file`: Path to output file (optional)
+
+**Example:**
+```bash
+splitup-node model test \
+  --model-id llama-70b \
+  --input-file prompt.json \
+  --output-file output.json
+```
+
+## Node Components
+
+The CLI manages the following containerized services:
+
+1. **Heartbeat Service**: Maintains communication with the Oracle Committee
+2. **TaskListener Service**: Listens for task assignments on the blockchain
+3. **Compute Service**: Performs ML computations on the GPU
+
+## Security and Staking
+
+Nodes must stake $100 USDC as collateral to participate in the network. This fixed amount ensures security within the verification system, incentivizing honest node behavior through rewards and deterring dishonesty with potential stake loss.
+
+For more detailed information about the node registration process and economic model, please refer to the project documentation.

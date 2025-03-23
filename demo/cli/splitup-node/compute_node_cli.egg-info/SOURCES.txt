@@ -11,3 +11,4 @@ compute_node_cli.egg-info/dependency_links.txt
 compute_node_cli.egg-info/entry_points.txt
 compute_node_cli.egg-info/requires.txt
 compute_node_cli.egg-info/top_level.txt
+tests/test_cli.py
