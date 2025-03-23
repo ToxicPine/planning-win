@@ -1,0 +1,23 @@
+[ScheduleItem(ast=UOp(Ops.SINK, dtypes.void, arg=None, src=(
+  UOp(Ops.STORE, dtypes.void, arg=None, src=(
+    UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=0, src=()),
+    x2:=UOp(Ops.VIEW, dtypes.void, arg=ShapeTracker(views=(View(shape=(2, 2), strides=(2, 1), offset=0, mask=None, contiguous=True),)), src=()),
+    UOp(Ops.ADD, dtypes.float, arg=None, src=(
+      UOp(Ops.ADD, dtypes.float, arg=None, src=(
+        UOp(Ops.ADD, dtypes.float, arg=None, src=(
+          UOp(Ops.ADD, dtypes.float, arg=None, src=(
+            UOp(Ops.LOAD, dtypes.float, arg=None, src=(
+              UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=1, src=()),
+               x2,)),
+            UOp(Ops.LOAD, dtypes.float, arg=None, src=(
+              UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=2, src=()),
+               x2,)),)),
+          UOp(Ops.LOAD, dtypes.float, arg=None, src=(
+            UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=3, src=()),
+             x2,)),)),
+        UOp(Ops.LOAD, dtypes.float, arg=None, src=(
+          UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=4, src=()),
+           x2,)),)),
+      UOp(Ops.LOAD, dtypes.float, arg=None, src=(
+        UOp(Ops.DEFINE_GLOBAL, dtypes.float.ptr(4), arg=5, src=()),
+         x2,)),)),)),)), bufs=(<buf real:False device:CPU size:4 dtype:dtypes.float offset:0>, <buf real:True device:CPU size:4 dtype:dtypes.float offset:0>, <buf real:True device:CPU size:4 dtype:dtypes.float offset:0>, <buf real:True device:CPU size:4 dtype:dtypes.float offset:0>, <buf real:True device:CPU size:4 dtype:dtypes.float offset:0>, <buf real:False device:CPU size:4 dtype:dtypes.float offset:0>), metadata=(__add__,))]
