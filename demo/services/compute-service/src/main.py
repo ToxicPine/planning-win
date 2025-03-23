@@ -3,7 +3,6 @@ import uvicorn
 import logging
 import sys
 import time
-import asyncio
 import platform
 from datetime import datetime
 from contextlib import asynccontextmanager
@@ -11,18 +10,18 @@ from urllib.parse import urlparse
 from fastapi import Depends, FastAPI, HTTPException, Body
 from pydantic import BaseModel, model_validator
 from functools import lru_cache
-from typing import Dict, Any, Optional, TypeVar, List
+from typing import Optional, TypeVar
 from .models import (
-    ComputeStatus, 
-    StatusUpdateResponse, 
-    SystemConfig, 
+    ComputeStatus,
+    StatusUpdateResponse,
+    SystemConfig,
     ErrorResponse,
-    BaseResponse,
     ConfigResponse,
     TaskExecutionRequest,
     TaskScheduledResponse,
     HealthStatus,
-    HealthCheckResponse
+    HealthCheckResponse,
+    TaskScheduledData,
 )
 from .result import create_success, create_failure, Result
 from .logger import setup_logger
@@ -30,12 +29,13 @@ from .environment import load_env_config
 from .util import with_exponential_backoff
 
 # Type variables for generic backoff function
-T = TypeVar('T')
-E = TypeVar('E')
+T = TypeVar("T")
+E = TypeVar("E")
 
 # Version information
 VERSION = "1.0.0"
 START_TIME = time.time()
+
 
 # Dependency for logger
 @lru_cache()
@@ -59,9 +59,7 @@ class EnvSettings(BaseModel):
     SPLITUP_COMPUTE_SERVICE_LISTENER_URL: str
     SPLITUP_COMPUTE_SERVICE_CONFIG_URL: str
 
-    model_config = {
-        "validate_assignment": True
-    }
+    model_config = {"validate_assignment": True}
 
     @model_validator(mode="after")
     def validate_urls(self):
@@ -71,7 +69,7 @@ class EnvSettings(BaseModel):
             self.SPLITUP_COMPUTE_SERVICE_LISTENER_URL,
             self.SPLITUP_COMPUTE_SERVICE_CONFIG_URL,
         ]
-        
+
         for url in urls:
             try:
                 result = urlparse(url)
@@ -79,15 +77,16 @@ class EnvSettings(BaseModel):
                     raise ValueError(f"URL {url} Must Have A Scheme And Host")
             except Exception as e:
                 raise ValueError(f"Invalid URL {url}: {str(e)}")
-        
+
         return self
+
 
 # Notification service
 async def notify_status_update(
     status: ComputeStatus, heartbeat_url: str, logger: logging.Logger
 ) -> Result[bool, str]:
     """Notify Heartbeat Service About Compute Status."""
-    
+
     async def _notify_operation() -> Result[bool, str]:
         try:
             logger.debug(f"Sending status update to {heartbeat_url}")
@@ -98,14 +97,14 @@ async def notify_status_update(
                 )
                 response.raise_for_status()
                 status_response = StatusUpdateResponse.model_validate(response.json())
-                
+
                 if status_response.success:
                     return create_success(True)
                 else:
                     return create_failure(status_response.message)
         except Exception as e:
             return create_failure(f"Failed to Send Status Update: {str(e)}")
-    
+
     return await with_exponential_backoff(
         operation=_notify_operation,
         logger=logger,
@@ -124,22 +123,22 @@ class ConfigService:
 
     async def load_config(self) -> Result[SystemConfig, str]:
         """Get The Current Configuration From API With Retry Logic."""
-        
+
         async def _fetch_config_operation() -> Result[SystemConfig, str]:
             try:
                 self.logger.debug(f"Fetching Configuration From {self.config_url}")
                 async with httpx.AsyncClient() as client:
                     response = await client.get(self.config_url)
                     response.raise_for_status()
-                    
+
                     config = SystemConfig.model_validate(response.json())
-                    
+
                     global global_config
                     global_config = config
                     return create_success(config)
             except Exception as e:
                 return create_failure(f"Failed to Fetch Configuration: {str(e)}")
-        
+
         self.logger.info(f"Loading Configuration From {self.config_url}")
         return await with_exponential_backoff(
             operation=_fetch_config_operation,
@@ -151,40 +150,50 @@ class ConfigService:
 # Task execution service
 class TaskService:
     """Service Class To Handle Task Execution."""
-    
+
     def __init__(self, logger: logging.Logger, listener_url: str):
         self.logger = logger
         self.listener_url = listener_url
-        
-    async def schedule_task(self, execution_id: str, task_id: str, parameters: Optional[Dict[str, Any]] = None) -> Result[Dict[str, Any], str]:
+
+    async def schedule_task(
+        self, request: TaskExecutionRequest
+    ) -> Result[TaskScheduledResponse, str]:
         """
         Schedule a task for execution.
-        
+
         In a real implementation, this would:
         1. Queue the task for background processing
-        2. Process the task asynchronously 
+        2. Process the task asynchronously
         3. Report results back to the listener when complete
         """
-        self.logger.info(f"Scheduling task: {task_id} with execution_id: {execution_id}")
-        
+        self.logger.info(
+            f"Scheduling task: {request.task_id} with execution_id: {request.execution_id}"
+        )
+
         try:
             # Record when the task was scheduled
             scheduled_at = int(time.time())
-            
+
             # Here you would typically:
             # 1. Add the task to a queue or database
             # 2. Trigger background processing
             # 3. Set up result reporting mechanisms
-            
+
             # For now, we'll just log that we received the task
-            self.logger.info(f"Task {task_id} scheduled successfully")
-            
+            self.logger.info(f"Task {request.task_id} Scheduled Successfully")
+
             # Return the basic scheduling information
-            return create_success({
-                "execution_id": execution_id,
-                "task_id": task_id,
-                "scheduled_at": scheduled_at
-            })
+            return create_success(
+                TaskScheduledResponse(
+                    success=True,
+                    message="Task scheduled successfully",
+                    data=TaskScheduledData(
+                        execution_id=request.execution_id,
+                        task_id=request.task_id,
+                        scheduled_at=scheduled_at,
+                    ),
+                )
+            )
         except Exception as e:
             self.logger.error(f"Failed to schedule task: {str(e)}")
             return create_failure(f"Failed to schedule task: {str(e)}")
@@ -194,59 +203,57 @@ class TaskService:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application Lifespan Manager for Startup and Shutdown Events."""
-    logger = setup_logger("compute-service", app.state.env_config.SPLITUP_COMPUTE_SERVICE_LOG_LEVEL)
-    logger.info("Starting Compute Service")
-    
-    # Notify that the service is online
-    status = ComputeStatus(
-        status="idle",
-        lastUpdated=int(time.time())
+    logger = setup_logger(
+        "compute-service", app.state.env_config.SPLITUP_COMPUTE_SERVICE_LOG_LEVEL
     )
-    
+    logger.info("Starting Compute Service")
+
+    # Notify that the service is online
+    status = ComputeStatus(status="idle", lastUpdated=int(time.time()))
+
     # Notify service is starting up (with exponential backoff built into the function)
     result = await notify_status_update(
         status=status,
         heartbeat_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
-        logger=logger
+        logger=logger,
     )
-    
+
     if result.status == "failure":
         logger.error(f"All Attempts To Notify Service Startup Failed: {result.error}")
     else:
         logger.info("Successfully Notified Service Startup")
-    
+
     # Load initial configuration
     config_service = ConfigService(
         logger=logger,
         config_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_CONFIG_URL,
-        heartbeat_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL
+        heartbeat_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
     )
-    
+
     config_result = await config_service.load_config()
     if config_result.status == "failure":
-        logger.error(f"All Attempts To Load Initial Configuration Failed: {config_result.error}")
+        logger.error(
+            f"All Attempts To Load Initial Configuration Failed: {config_result.error}"
+        )
     else:
         logger.info("Successfully Loaded Initial Configuration")
-    
+
     yield
-    
+
     # Shutdown logic: notify that the service is going offline
-    status = ComputeStatus(
-        status="offline",
-        lastUpdated=int(time.time())
-    )
-    
+    status = ComputeStatus(status="offline", lastUpdated=int(time.time()))
+
     result = await notify_status_update(
         status=status,
         heartbeat_url=app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL,
-        logger=logger
+        logger=logger,
     )
-    
+
     if result.status == "failure":
         logger.error(f"Failed to Notify Service Shutdown: {result.error}")
     else:
         logger.info("Successfully Notified Service Shutdown")
-    
+
     logger.info("Shutting Down Compute Service")
 
 
@@ -263,12 +270,14 @@ def get_heartbeat_url():
         raise RuntimeError("Environment Configuration Not Initialized")
     return app.state.env_config.SPLITUP_COMPUTE_SERVICE_HEARTBEAT_URL
 
+
 # Dependency to get config URL
 def get_config_url():
     """Get Config URL From Environment Configuration."""
     if app.state.env_config is None:
         raise RuntimeError("Environment Configuration Not Initialized")
     return app.state.env_config.SPLITUP_COMPUTE_SERVICE_CONFIG_URL
+
 
 # Dependency to get listener URL
 def get_listener_url():
@@ -277,11 +286,12 @@ def get_listener_url():
         raise RuntimeError("Environment Configuration Not Initialized")
     return app.state.env_config.SPLITUP_COMPUTE_SERVICE_LISTENER_URL
 
+
 # Dependency for config service
 def get_config_service(
     logger: logging.Logger = Depends(get_logger),
     heartbeat_url: str = Depends(get_heartbeat_url),
-    config_url: str = Depends(get_config_url)
+    config_url: str = Depends(get_config_url),
 ) -> ConfigService:
     """Get The Configuration Service Instance."""
     return ConfigService(logger, config_url, heartbeat_url)
@@ -290,19 +300,16 @@ def get_config_service(
 # Dependency for task service
 def get_task_service(
     logger: logging.Logger = Depends(get_logger),
-    listener_url: str = Depends(get_listener_url)
+    listener_url: str = Depends(get_listener_url),
 ) -> TaskService:
     """Get The Task Service Instance."""
     return TaskService(logger, listener_url)
 
 
 @app.post(
-    "/load_config", 
-    response_model=ConfigResponse, 
-    responses={
-        200: {"model": ConfigResponse},
-        500: {"model": ErrorResponse}
-    }
+    "/load_config",
+    response_model=ConfigResponse,
+    responses={200: {"model": ConfigResponse}, 500: {"model": ErrorResponse}},
 )
 async def load_config(
     config_service: ConfigService = Depends(get_config_service),
@@ -314,64 +321,43 @@ async def load_config(
         raise HTTPException(status_code=500, detail=result.error)
 
     return ConfigResponse(
-        success=True,
-        message="Configuration loaded successfully",
-        config=result.data
+        success=True, message="Configuration Loaded Successfully", config=result.data
     )
 
 
 @app.post(
-    "/task_execution", 
+    "/task_execution",
     response_model=TaskScheduledResponse,
-    responses={
-        200: {"model": TaskScheduledResponse},
-        500: {"model": ErrorResponse}
-    }
+    responses={200: {"model": TaskScheduledResponse}, 500: {"model": ErrorResponse}},
 )
 async def task_execution(
     request: TaskExecutionRequest = Body(...),
     task_service: TaskService = Depends(get_task_service),
 ):
     """Schedule A Task For Execution."""
-    result = await task_service.schedule_task(
-        execution_id=request.execution_id,
-        task_id=request.task_id,
-        parameters=request.parameters
-    )
+    result = await task_service.schedule_task(request)
 
     if result.status == "failure":
         raise HTTPException(status_code=500, detail=result.error)
 
-    # Extract the scheduling details
-    scheduled_data = result.data
-    
-    return TaskScheduledResponse(
-        success=True,
-        message="Task successfully scheduled for execution",
-        execution_id=scheduled_data["execution_id"],
-        task_id=scheduled_data["task_id"],
-        scheduled_at=scheduled_data["scheduled_at"]
-    )
+    return result.data
 
 
 @app.get(
     "/health",
     response_model=HealthCheckResponse,
-    responses={
-        200: {"model": HealthCheckResponse},
-        500: {"model": ErrorResponse}
-    }
+    responses={200: {"model": HealthCheckResponse}, 500: {"model": ErrorResponse}},
 )
 async def health_check():
     """Get Health Status Of The Service."""
     try:
         uptime = int(time.time() - START_TIME)
-        
+
         # Determine the system status
-        status = "healthy" 
+        status = "healthy"
         if global_config is None:
-            status = "degraded"  # No configuration loaded
-            
+            status = "degraded"
+
         health_status = HealthStatus(
             status=status,
             uptime=uptime,
@@ -381,21 +367,18 @@ async def health_check():
                 "python_version": platform.python_version(),
                 "config_loaded": global_config is not None,
                 "start_time": datetime.fromtimestamp(START_TIME).isoformat(),
-            }
+            },
         )
-        
+
         return HealthCheckResponse(
             success=True,
             message="Service health check successful",
-            health=health_status
+            health=health_status,
         )
     except Exception as e:
         logger = get_logger()
         logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Health check failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
 
 def main():
@@ -414,7 +397,9 @@ def main():
     logger.info(
         f"Starting API Server on Port {app.state.env_config.SPLITUP_COMPUTE_SERVICE_API_PORT}"
     )
-    uvicorn.run(app, host="0.0.0.0", port=app.state.env_config.SPLITUP_COMPUTE_SERVICE_API_PORT)
+    uvicorn.run(
+        app, host="0.0.0.0", port=app.state.env_config.SPLITUP_COMPUTE_SERVICE_API_PORT
+    )
 
 
 if __name__ == "__main__":
