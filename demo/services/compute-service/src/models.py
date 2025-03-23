@@ -6,10 +6,7 @@ from urllib.parse import urlparse
 class SystemConfig(BaseModel):
     """System configuration model."""
 
-    app_name: str
-    log_level: str
-    api_port: int
-    notification_url: str
+    weights_data_key: str
 
 
 class ComputeStatus(BaseModel):
@@ -53,6 +50,7 @@ class TaskExecutionRequest(BaseModel):
 
     execution_id: str
     task_id: str
+    task_storage_key: str
     parameters: List[str] = []
 
     @model_validator(mode="after")
@@ -113,7 +111,9 @@ class SystemConfigUpdateRequest(BaseModel):
 class ComputeResult(BaseModel):
     """Result of a compute task."""
 
-    result: str
+    execution_id: str
+    task_id: str
+    tensor_urls: List[str]
     status: Literal["success", "failure"]
 
 

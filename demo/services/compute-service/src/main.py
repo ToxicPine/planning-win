@@ -32,6 +32,8 @@ from .environment import load_env_config, EnvSettings
 from .util import with_exponential_backoff
 from .execution import ExecutionService
 from .notification import notify_status_update
+from .storage import StorageService
+from .cache_models import ensure_weights_cached
 
 # Type variables for generic backoff function
 T = TypeVar("T")
@@ -160,8 +162,22 @@ async def lifespan(app: FastAPI):
         logger.error(
             f"All Attempts To Load Initial Configuration Failed: {config_result.error}"
         )
+        raise Exception(f"Failed To Load Initial Configuration: {config_result.error}")
     else:
         logger.info("Successfully Loaded Initial Configuration")
+
+    storage_service = StorageService()
+
+    weights_result = await ensure_weights_cached(
+        weights_data_key=config_result.data.weights_data_key,
+        storage_service=storage_service,
+    )
+
+    if weights_result.status == "failure":
+        logger.error(f"Failed To Ensure Weights Are Cached: {weights_result.error}")
+        raise Exception(f"Failed To Ensure Weights Are Cached: {weights_result.error}")
+    else:
+        logger.info("Successfully Ensured Weights Are Cached")
 
     yield
 

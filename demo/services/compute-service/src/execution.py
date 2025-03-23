@@ -10,7 +10,7 @@ from .storage import StorageService
 
 # Task execution service
 class ExecutionService:
-    """Service class to handle task execution queue and processing."""
+    """Service Class to Handle Task Execution Queue and Processing."""
 
     def __init__(self, logger: logging.Logger, listener_url: str):
         self.logger = logger
@@ -18,25 +18,26 @@ class ExecutionService:
         self.task_queue: asyncio.Queue = asyncio.Queue()
         self.active_tasks: Dict[str, asyncio.Task] = {}  # execution_id -> task
         self.task_results: Dict[str, ComputeResult] = {}  # execution_id -> result
+        self.storage_service = StorageService()
         self._start_worker()
 
     def _start_worker(self):
-        """Start the task processing worker."""
+        """Start the Task Processing Worker."""
         asyncio.create_task(self._process_tasks())
 
     async def _process_tasks(self):
-        """Process tasks from the queue."""
+        """Process Tasks From The Queue."""
         while True:
             try:
                 task_request = await self.task_queue.get()
                 self.logger.info(
-                    f"Processing task execution {task_request.execution_id} of type {task_request.task_id}"
+                    f"Processing Task Execution {task_request.execution_id} of Type {task_request.task_id}"
                 )
 
                 # Create task execution
                 task = asyncio.create_task(
                     self._execute_task(task_request),
-                    name=f"execution_{task_request.execution_id}",
+                    name=task_request.execution_id,
                 )
 
                 # Track active task by execution_id
@@ -69,9 +70,11 @@ class ExecutionService:
 
             except Exception as e:
                 self.logger.error(f"Error Processing Task Queue: {str(e)}")
-                await asyncio.sleep(1)  # Prevent Tight Loop On Errors
+                await asyncio.sleep(1)
 
-    async def _execute_task(self, request: TaskExecutionRequest) -> ComputeResult:
+    async def _execute_task(
+        self, request: TaskExecutionRequest
+    ) -> Result[ComputeResult, str]:
         """
         Execute a single task.
 
@@ -83,21 +86,40 @@ class ExecutionService:
         """
         try:
             # Simulate some work
-            ###
-            # IMPLEMENT WORK HERE
+            result = await self.storage_service.get_object(request.task_storage_key)
+            if result.status == "failure":
+                return create_failure(result.error)
+
+            # TODO: ML Implementation Here, Must Put Result In Result Directory
+            upload_from = "MOCK"
             ###
 
+            key = f"results/{request.execution_id}/task_{request.task_id}.pt"
+
+            tensor_url = await self.storage_service.put_object(
+                key=key,
+                file_path=upload_from,
+            )
+
+            if tensor_url.status == "failure":
+                return create_failure(tensor_url.error)
+
             # For now, just return a success result
-            return ComputeResult(
-                result="Execution Completed Successfully", status="success"
+            return create_success(
+                ComputeResult(
+                    execution_id=request.execution_id,
+                    task_id=request.task_id,
+                    tensor_urls=[tensor_url.data],
+                    status="success",
+                )
             )
         except Exception as e:
-            return ComputeResult(result=str(e), status="failure")
+            return create_failure(f"Failed To Execute Task: {str(e)}")
 
     async def enqueue_task(
         self, request: TaskExecutionRequest
     ) -> Result[TaskScheduledData, str]:
-        """Add a task to the execution queue."""
+        """Add a Task to the Execution Queue."""
         try:
             # Record scheduling time
             scheduled_at = int(time.time())
@@ -120,11 +142,11 @@ class ExecutionService:
             return create_failure(f"Failed To Queue Task: {str(e)}")
 
     async def get_execution_status(self, execution_id: str) -> Optional[ComputeResult]:
-        """Get the current status of a task execution."""
+        """Get the Current Status of a Task Execution."""
         return self.task_results.get(execution_id)
 
     async def cancel_execution(self, execution_id: str) -> Result[bool, str]:
-        """Cancel a running task execution."""
+        """Cancel a Running Task Execution."""
         if execution_id in self.active_tasks:
             try:
                 task = self.active_tasks[execution_id]
@@ -135,7 +157,7 @@ class ExecutionService:
         return create_failure("Task Execution Not Found Or Not Running")
 
     async def list_active_executions(self) -> Dict[str, str]:
-        """List all currently active task executions with their task types."""
+        """List All Currently Active Task Executions With Their Task Types."""
         return {
             execution_id: task.get_name()
             for execution_id, task in self.active_tasks.items()

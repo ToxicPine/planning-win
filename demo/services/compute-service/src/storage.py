@@ -95,6 +95,10 @@ class DownloadManager:
             initial_backoff=1,
         )
 
+    def is_downloaded(self, key: str) -> bool:
+        """Check if an object has been downloaded."""
+        return (self.download_dir / key).exists()
+
 
 class S3Operations:
     """Handles S3-specific operations."""
@@ -324,6 +328,10 @@ class StorageService:
             return create_failure("S3 Client Not Initialized")
 
         return await self.s3_operations.put_object(key, file_path, metadata, bucket)
+
+    async def is_downloaded(self, key: str) -> Result[bool, str]:
+        """Check if an object has been downloaded."""
+        return await self.download_manager.is_downloaded(key)
 
     async def generate_presigned_url(
         self,
