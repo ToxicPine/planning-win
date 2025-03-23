@@ -1,0 +1,5 @@
+**/__pycache__/
+demo/cli/splitup-node/.gitignore
+demo/cli/splitup-node/__pycache__
+demo/cli/splitup-node/__pycache__/__init__.cpython-313.pyc
+demo/cli/splitup-node/tests/__pycache__
