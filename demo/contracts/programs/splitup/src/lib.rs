@@ -100,17 +100,24 @@ pub mod splitup {
         ctx: Context<RequestModelExecution>,
         model_id: u64,
         input_uri: String,
-        max_fee: u64,
     ) -> Result<()> {
         let execution = &mut ctx.accounts.execution;
         execution.user = ctx.accounts.user.key();
         execution.model_id = model_id;
-        execution.input_uri = input_uri;
-        execution.max_fee = max_fee;
-        execution.start_time = Clock::get()?.unix_timestamp;
+        execution.input_uri = input_uri.clone();
+        let timestamp = Clock::get()?.unix_timestamp;
+        execution.start_time = timestamp;
         execution.status = ExecutionStatus::Requested;
         execution.assigned_tasks = Vec::new();
         execution.completed_tasks = Vec::new();
+
+        emit!(ModelExecutionRequested {
+            user: ctx.accounts.user.key(),
+            model_id,
+            input_uri,
+            timestamp,
+        });
+
         Ok(())
     }
 
@@ -183,14 +190,15 @@ pub mod splitup {
         let mut specialized_nodes = Vec::new();
 
         for acc in ctx.remaining_accounts {
-            if let Ok(node) = Account::<Node>::try_from(acc) {
-                if node
+            let node = acc.try_borrow_data()?;
+            if let Ok(node_data) = Node::try_deserialize(&mut &node[..]) {
+                if node_data
                     .info
                     .specializations
                     .iter()
                     .any(|s| s.task_id == task_id)
                 {
-                    specialized_nodes.push(node.owner);
+                    specialized_nodes.push(node_data.owner);
                 }
             }
         }
@@ -297,4 +305,12 @@ pub enum SplitupError {
 pub struct GetSpecializedNodes<'info> {
     /// CHECK: This account is not written to
     pub authority: UncheckedAccount<'info>,
+}
+
+#[event]
+pub struct ModelExecutionRequested {
+    pub user: Pubkey,
+    pub model_id: u64,
+    pub input_uri: String,
+    pub timestamp: i64,
 }
