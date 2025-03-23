@@ -372,13 +372,13 @@ async def health_check():
 
         return HealthCheckResponse(
             success=True,
-            message="Service health check successful",
+            message="Service Health Check Successful",
             health=health_status,
         )
     except Exception as e:
         logger = get_logger()
-        logger.error(f"Health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        logger.error(f"Health Check Failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Health Check Failed: {str(e)}")
 
 
 def main():
