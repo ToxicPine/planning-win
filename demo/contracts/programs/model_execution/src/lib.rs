@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use std::collections::BTreeMap;
 
-declare_id!("ModlExec111111111111111111111111111111111111");
+declare_id!("11111111111111111111111111111111");
 
 #[program]
 pub mod model_execution {
@@ -75,11 +75,6 @@ pub mod model_execution {
         );
         exec.status = ExecutionStatus::Canceled;
         Ok(())
-    }
-
-    // Optional view-like method, off-chain calculation in practice
-    pub fn estimate_execution_fee(_model_id: u64, _priority: u8) -> Result<u64> {
-        Ok(10_000) // Dummy flat fee
     }
 }
 
@@ -162,7 +157,7 @@ pub struct TaskResult {
 impl TaskResult {
     pub const MAX_OUTPUTS: usize = 8;
     pub const MAX_URI_LEN: usize = 128;
-    pub const MAX_SIZE: usize = 8 + 4 + (MAX_OUTPUTS * (4 + MAX_URI_LEN));
+    pub const MAX_SIZE: usize = 8 + 4 + (Self::MAX_OUTPUTS * (4 + Self::MAX_URI_LEN));
 }
 
 #[error_code]

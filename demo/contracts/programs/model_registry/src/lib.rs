@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program::ID;
 
-declare_id!("ModlRgs1try111111111111111111111111111111111");
+declare_id!("11111111111111111111111111111111");
 
 #[program]
 pub mod model_registry {
