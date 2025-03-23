@@ -1,0 +1,27 @@
+{
+    "dev": {
+        "app_function": "main.app",
+        "aws_region": "eu-west-2",
+        "profile_name": "default",
+        "project_name": "secure-storage-api",
+        "runtime": "python3.11",
+        "s3_bucket": "zappa-secure-storage-api",
+        "timeout_seconds": 900,
+        "manage_roles": true,
+        "role_name": "ZappaLambdaRole",
+        "iam_authorization": true,
+        "vpc_config": {
+            "SubnetIds": [],
+            "SecurityGroupIds": []
+        },
+        "apigateway_enabled": true,
+        "apigateway_description": "Secure Storage API",
+        "apigateway_stage": "dev",
+        "apigateway_authorizer": "NONE",
+        "apigateway_required": true,
+        "environment_variables": {
+            "CLOUDFRONT_DOMAIN": "d01pn9jtuc.execute-api.eu-west-2.amazonaws.com",
+            "S3_BUCKET": "zappa-secure-storage-api"
+        }
+    }
+} 

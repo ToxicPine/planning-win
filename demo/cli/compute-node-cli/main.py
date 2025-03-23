@@ -1,6 +1,4 @@
-def main():
-    print("Hello from compute-node-cli!")
+from cli.commands import cli
 
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    cli() 

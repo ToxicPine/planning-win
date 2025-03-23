@@ -1,10 +1,23 @@
 [project]
 name = "compute-node-cli"
 version = "0.1.0"
-description = "Add your description here"
+description = "A command-line interface for managing compute nodes."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.115.11",
     "pydantic>=2.10.6",
+    "pydantic-settings>=2.0.0",
+    "click",
+    "python-dotenv"
 ]
+
+[project.scripts]
+splitup-node = "cli.commands:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cli*"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

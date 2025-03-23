@@ -1,0 +1,10 @@
+{
+  "name": "signed-url-generator",
+  "version": "1.0.0",
+  "description": "Lambda function to generate signed URLs for CloudFront",
+  "main": "generateSignedUrl.js",
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.0.0",
+    "@aws-sdk/cloudfront-signer": "^3.0.0"
+  }
+} 

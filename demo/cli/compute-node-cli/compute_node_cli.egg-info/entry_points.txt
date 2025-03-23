@@ -1,0 +1,2 @@
+[console_scripts]
+splitup-node = cli.commands:cli
