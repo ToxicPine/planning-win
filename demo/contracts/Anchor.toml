@@ -20,9 +20,5 @@ test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [workspace]
 members = [
-  "programs/model_registry",
-  "programs/node_registry",
-  "programs/task_registry",
-  "programs/model_execution",
   "programs/splitup"
 ]
