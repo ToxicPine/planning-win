@@ -111,7 +111,7 @@ The DAG structure ensures:
 
 This structure is essential for our system as it allows us to plan the entire execution path in advance.
 
-**Each node specializes to specific tasks. It must be able to keep the task code and weights in VRAM for use at any given instant.**
+**Each node specializes to specific tasks. Specialization implies that a node keeps the definitions for each task as well as its weights in VRAM (for use at any given instant.)**
 
 ### 3.2. Tensor Data Flow Between Nodes
 
