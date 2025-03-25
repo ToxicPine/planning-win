@@ -13,7 +13,7 @@ flowchart TD
     subgraph "Model Deployment"
         DC[Deploy CLI]
         AP[Auto-Partitioner]
-        TC[TensorContext]
+        TC[Graph Abstraction]
     end
     
     %% Blockchain contracts
@@ -56,6 +56,7 @@ flowchart TD
         CF[Configuration Storage, State Service]
         subgraph "Compute Service"
             PR[Pre-loading Subsystem]
+            IR[Iroh Networking]
             ES[Execution Subsystem]
         end
         TL[TaskListener Service]
@@ -120,54 +121,64 @@ flowchart TD
     class Heartbeat orangeFlow;
 ```
 
-## Compute Node Performing Computation
+## Model Execution
 
 ```mermaid
 flowchart TD
-    %% Client actors
+    %% Client actors at the top
     User[End User]
     UC[User CLI/UI]
-    
-    %% Node components
-    subgraph "SplitUp Node"
-        CS[Compute Service]
-        TL[TaskListener Service]
-    end
-    
-    %% Blockchain contracts
-    subgraph "Blockchain Layer"
-        ME[Model Execution]
-        NR[Node Registry]
-    end
-    
-    %% Oracle Committee
-    subgraph "Oracle Committee"
-        OC[Oracle Consensus]
-    end
     
     %% Storage
     subgraph "Storage Layer"
         TS[Tensor Storage]
     end
     
-    %% TASK EXECUTION FLOW (BLUE)
+    %% Blockchain and Oracle layers
+    subgraph "Blockchain Layer"
+        ME[Model Execution]
+        NR[Node Registry]
+    end
+    
+    subgraph "Oracle Committee"
+        OC[Oracle Consensus]
+    end
+    
+    %% Node components
+    subgraph "SplitUp Node"
+        TL[TaskListener Service]
+        CS[Compute Service]
+        IN[Iroh Networking Module]
+    end
+    
+    %% Downstream Node - positioned closer to where it's referenced
+    subgraph "Downstream Node"
+        DSN[Next Task Node]
+    end
+    
+    %% TASK EXECUTION FLOW with logical flow direction
     User --> UC
     UC -->|"1 - Upload Input Tensors"| TS
     UC -->|"2 - Request Execution"| ME
-    ME -->|"3 - Chain Waits For Oracles To Pick Nodes"| OC
-    OC <-->|"4 - Oracles Confirm Task Specialization"| NR
-    OC -->|"5 - Oracles Confirm Node Selection"| ME
-    ME -->|"6 - Node Listens For Task"| TL
-    TL -->|"7 - Listener Forwards Task To GPU"| CS
-    CS -->|"9 - Store GPU Result"| TS
-    CS -->|"10 - Report Completed Computation"| ME
+    ME -->|"3 - Request Execution Plan"| OC
+    OC <-->|"4 - Get Specialized Nodes"| NR
+    OC -->|"5 - Generate Access Control"| TS
+    OC -->|"6 - Submit Node Assignment Plan"| ME
+    ME -->|"7 - Notify Nodes"| TL
+    TL -->|"8 - Forward Task To GPU"| CS
+    CS -->|"9 - Compute Task"| CS
+    CS -->|"10 - Store Result"| TS
+    
+    %% Direct Node Communication (organized to minimize crossing)
+    CS -->|"11a - Direct Notification"| IN
+    IN -->|"12a - Notify Next Node"| DSN
+    CS -->|"11b - Report Completion"| ME
     
     %% Style task execution relationships with blue color
-    linkStyle 0,1,2,3,4,5,6,7,8,9 stroke:#3498db,stroke-width:2;
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13 stroke:#3498db,stroke-width:2;
     
     classDef blueFlow fill:#3498db,stroke:#2980b9,color:white;
     class TaskExecution blueFlow;
-    class UserData tealFlow;
 ```
 
 ## Compute Verification Flows

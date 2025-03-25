@@ -1,6 +1,6 @@
 # Stack
 
-Data Availability and Storage: ???
+Data Availability and Storage: S3, with AWS Lambda instance as gateway.
 
 ---
 

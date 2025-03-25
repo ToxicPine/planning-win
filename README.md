@@ -1,16 +1,8 @@
-THIS IS THE DRAFT README FOR WHEN WE DO THE FINAL PROJECT.
+This project won Solana Superteam's first AI3 Hackathon in London!!
 
-I HAVE CREATED TECHNICAL DIAGRAMS TO EXPLAIN.
+We're shaking things up, and will be back with an updated README soon!
 
-SEE [`concrete_plans/explanation.md`](concrete_plans/explanation.md) TO UNDERSTAND HOW THIS IS GONNA WORK.
-THERE IS ALSO A `technical_summary.md`, WHICH MAY BE HELPFUL.
-IMO, FOR YOUR UNDERSTANDING, [`concrete_plans/explanation.md`](concrete_plans/explanation.md) >>> `technical_summary.md`
-
-WE NEED TO SPLIT THE WORK EFFECTIVELY BETWEEN OURSELVES.
-
-SEE `roles_and_tasks.md`
-
-I ALSO CREATED DRAFT SLIDES USING MARKDOWN. SEE `presentation.md`
+Hackathon won at Git commit `fa3db00a611a7b8754bd2cddaeed81c358c45719`.
 
 ---
 

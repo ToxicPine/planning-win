@@ -1,10 +1,6 @@
----
-marp: true
----
+# Lattice: Large AI Model Marketplace on Solana
 
-# SplitUp: Large AI Model Marketplace on Solana
-
-> **TLDR: A Solana-powered marketplace where consumer GPU owners earn by running specialized portions of large AI models that wouldn't otherwise fit on their hardware.**
+> **TLDR: A Solana-powered marketplace where consumer GPU owners earn by processing specialized portions of large AI models, overcoming the VRAM limitations of individual devices.**
 
 ---
 
@@ -13,28 +9,28 @@ marp: true
 - **Hard Technical Limit**: Modern AI models require 24-80GB VRAM
 - **Consumer Reality**: Most GPUs have only 8-16GB VRAM
 - **Current Options**:
-  - Buy expensive specialized hardware ($5,000-10,000+)
-  - Pay for cloud GPU instances ($2-8+ per hour)
-  - Use smaller, less capable models
+  - Purchase expensive specialized hardware ($5K-$10K+ per unit)
+  - Rent cloud GPU instances ($2-$8+ per hour)
+  - Use someone's API (untrusted, no verification)
 
 This creates a significant barrier to AI democratization.
 
 ---
 
-## Introducing SplitUp: AI Compute Marketplace
+## Introducing Lattice: The AI Compute Marketplace
 
-**SplitUp creates a two-sided marketplace on Solana:**
+**Lattice creates a two-sided marketplace on Solana:**
 
-- **Buyers**: AI developers who need to run large models
-- **Sellers**: GPU owners who specialize in specific model components
+- **Buyers**: AI developers who need compute for large models
+- **Sellers**: GPU owners contributing compute power
 
 The correctness of computations is ensured through our Proof of Sampling Protocol (PoSP) with only 8% verification overhead - dramatically more efficient than traditional verification methods that require 100%+ redundancy.
 
-Result: Consumer GPUs can collectively run models too large for any single one... and it's cheap.
+Result: Consumer GPUs can collectively run models too large for any single one... and it's cost-effective.
 
 ---
 
-## Why SplitUp is Special: Technical Advantages
+## Why Lattice is Special: Key Technical Advantages
 
 **Built on EigenTensor**
 
@@ -49,6 +45,8 @@ Result: Consumer GPUs can collectively run models too large for any single one..
    - Prevents security exploits or physical hardware damage
    - Enables trustless computation with mathematical guarantees
 
+---
+
 3. **GPU Agnosticism**: Works on any consumer GPU regardless of manufacturer
 
    - NVIDIA, AMD, Intel all supported
@@ -56,9 +54,12 @@ Result: Consumer GPUs can collectively run models too large for any single one..
 
 4. **Automatic Model Splitting**: VRAM no longer limits model size
 
-   - Novel partitioning algorithm finds optimal split points
+   - Partitioning algorithm finds optimal split points
    - Memory requirements distributed across multiple nodes
    - Solves the #1 bottleneck in AI democratization
+   - Currently TODO, not a difficult task
+
+---
 
 **Uses Proof of Sampling Protocol (PoSP)**
 
@@ -72,105 +73,21 @@ No other platform combines all these advantages in a working marketplace.
 
 ## How It Works: The Big Picture
 
-```mermaid
-flowchart LR
-    subgraph "1. Split Large Model"
-        LM[Large 70B Model] --> |Partition| P1[Task 1: 12GB] & P2[Task 2: 12GB] & P3[Task 3: 12GB] & P4["..."] & P5[Task 12: 12GB]
-    end
-
-    subgraph "2. Distribute to Specialized Nodes"
-        P1 --> |Assign| N1[Node A]
-        P2 --> |Assign| N2[Node B]
-        P3 --> |Assign| N3[Node C]
-        P4 --> |Assign| N4["..."]
-        P5 --> |Assign| N5[Node L]
-    end
-
-    subgraph "3. Execute & Verify 8%"
-        N1 --> R1[Result 1]
-        N2 --> R2[Result 2]
-        N3 --> R3[Result 3]
-        N4 --> R4["..."]
-        N5 --> R5[Result 12]
-    end
-
-    subgraph "4. Combine Results"
-        R1 & R2 & R3 & R4 & R5 --> FR[Final Result]
-    end
-
-    style LM fill:#ff9999
-    style FR fill:#99ff99
-    style N1 fill:#9999ff
-    style N2 fill:#9999ff
-    style N3 fill:#9999ff
-    style N4 fill:#9999ff
-    style N5 fill:#9999ff
-```
+[![](https://mermaid.ink/img/pako:eNp9k1Fv2yAQx7_KiWl9aq0ZbG3xw6SmXfaSWBGd9jCTB2LjBA3jyMbasrbfvTDijnpNeUDmfv_j7n_I96hsK4EyxHSt2l_lnncGlpRpsKsftruOH_bAUBzB3UFJy3i3E7CySYohL3NruSo8-fhh7ukGrq4-w8PaXiiNbPUDrOPiG-9_QpxBjL_ON3ABa-xDOAgRHyJBKCkYiqKIob-n9HTNmOS7ELpi-r--cQS3sjed3A5GgGmtC1FKruQfUUFu--xDF-vYN33d93JnO87jwmngehNo8ESDvWYeashEQ7zmJtQkE80_k4EonYhSf9HyTdMkgi-_RekcX8B30cn6CJ_eh0Zzb5TGBRX9oAzEQdHcO6R4hDiE3holIyQh9J7oa1Zyb4WmzyXxmyaSCG7aZiu1AJ_w4qVobK1R7DbitsRtvsKCFgupuTqlvVLEHJUd4QpqqVT2rq5ndoVoQU9oNnMwRHZwI3LwBcLnETmPkvMonSB0iRrRNVxW9oe9d1KGzF40gqHMflai5tawG9OjlfLBtHdHXaLMdIO4RF077PYoq7nq7Wk4VNyIW8ntvJvn6IHrH207nh-fAAW6Lw0?type=png)](https://mermaid.live/edit#pako:eNp9k1Fv2yAQx7_KiWl9aq0ZbG3xw6SmXfaSWBGd9jCTB2LjBA3jyMbasrbfvTDijnpNeUDmfv_j7n_I96hsK4EyxHSt2l_lnncGlpRpsKsftruOH_bAUBzB3UFJy3i3E7CySYohL3NruSo8-fhh7ukGrq4-w8PaXiiNbPUDrOPiG-9_QpxBjL_ON3ABa-xDOAgRHyJBKCkYiqKIob-n9HTNmOS7ELpi-r--cQS3sjed3A5GgGmtC1FKruQfUUFu--xDF-vYN33d93JnO87jwmngehNo8ESDvWYeashEQ7zmJtQkE80_k4EonYhSf9HyTdMkgi-_RekcX8B30cn6CJ_eh0Zzb5TGBRX9oAzEQdHcO6R4hDiE3holIyQh9J7oa1Zyb4WmzyXxmyaSCG7aZiu1AJ_w4qVobK1R7DbitsRtvsKCFgupuTqlvVLEHJUd4QpqqVT2rq5ndoVoQU9oNnMwRHZwI3LwBcLnETmPkvMonSB0iRrRNVxW9oe9d1KGzF40gqHMflai5tawG9OjlfLBtHdHXaLMdIO4RF077PYoq7nq7Wk4VNyIW8ntvJvn6IHrH207nh-fAAW6Lw0)
 
 ---
 
 ## Technical Deep Dive: EigenTensor Integration
 
-```python
-# Define your model using TinyGrad-compatible code
-def create_llama_task(context: TensorContext) -> GraphProgram:
-    # Define placeholder tensors for token embeddings
-    input_ids = context.add_graph_input("input_ids", (1, max_seq_len))
 
-    # Load model architecture (weights handled separately)
-    model = LLaMAModel(config)
 
-    # Define forward pass (automatically builds computational graph)
-    outputs = model(input_ids)
-
-    # Compile to universal tensor graph format
-    return context.compile_to_graph(outputs)
-
-# Auto-partition the model for distributed execution
-def auto_partition(
-    graph_program: GraphProgram,
-    target_vram: int
-) -> list[SolanaTaskDefinition]:
-    # Analyze model memory requirements and dependencies
-    partitions = split_graph_by_memory_constraints(graph_program, target_vram)
-
-    # Define clean interfaces between partitions
-    task_definitions = []
-    for partition in partitions:
-        task_definition = SolanaTaskDefinition(
-            task_id=generate_task_id(),
-            vram_requirement=calculate_vram_needs(partition),
-            weight_uri=upload_weights_to_storage(partition),
-            input_interfaces=define_input_interfaces(partition),
-            output_interfaces=define_output_interfaces(partition)
-        )
-        task_definitions.append(task_definition)
-
-    return task_definitions
-```
-
-SplitUp transforms this memory-safe computation into a Solana marketplace.
+Lattice transforms this memory-safe computation into a Solana marketplace.
 
 ---
 
-## Solana-powered Marketplace
+## Solana-Powered Marketplace Flow
 
-```mermaid
-sequenceDiagram
-    participant Client as AI Developer
-    participant Contract as Solana Smart Contracts
-    participant Node as GPU Node Operators
-
-    Client->>Contract: 1. Post Job (model, input, maxFee)
-    Contract->>Contract: 2. Calculate optimal task division
-    Contract->>Node: 3. Offer tasks to specialized nodes
-    Node->>Contract: 4. Accept tasks (stake as collateral)
-    Node->>Node: 5. Execute specialized tasks
-    Node->>Contract: 6. Submit results
-    Contract->>Contract: 7. Verify 8% of results randomly
-    Contract->>Node: 8. Pay for honest execution
-    Contract->>Client: 9. Return complete results
-```
+[![](https://mermaid.ink/img/pako:eNp1UstKJEEQ_JWkYEFhtkHdXbUPgvhY3MMqDrsH6Utane0UVlWW9RBH8d_Nfow4OPal6xGRERmVL0pzS6pWiR4KeU2nBu8iusaDfAFjNtoE9BlOrCH5YYLjCzilR7IcKG7Asc8R9YCcs0WPMHdy_36RPnP-ioce__vq37i-lNKYOQp2RI_q34-OVlVq2KngilOGP3wLW05YdgbGh5Jn4PDpnGh7ok6MNfJuBSdodbGYCThk49BCxnQPrXk0ybD_RO6N1bBXwWXXURzACTJDCqQNWvNMLXjBTP318DXJHxUca00hT9StlPF-aFuz7X1EtNtr3FHxZwVnT6SLGP0oNRT5QupXBfNy60yGSKnYVeQbk9iv4D9F0y3h4Btwt2JARN-ys8svcjiQ9HEJHUdYsCd5BxpMbkpufLwaDiu4plyil45dsCQdTWpqphxFh6aVUXzpCzQqL8hRo2pZttShwBrV-FeBYsk8X3qt6hwLzVTkcrdQdYc2ya6EVsKc5vj9VObshnm1f30D4zkCzw?type=png)](https://mermaid.live/edit#pako:eNp1UstKJEEQ_JWkYEFhtkHdXbUPgvhY3MMqDrsH6Utane0UVlWW9RBH8d_Nfow4OPal6xGRERmVL0pzS6pWiR4KeU2nBu8iusaDfAFjNtoE9BlOrCH5YYLjCzilR7IcKG7Asc8R9YCcs0WPMHdy_36RPnP-ioce__vq37i-lNKYOQp2RI_q34-OVlVq2KngilOGP3wLW05YdgbGh5Jn4PDpnGh7ok6MNfJuBSdodbGYCThk49BCxnQPrXk0ybD_RO6N1bBXwWXXURzACTJDCqQNWvNMLXjBTP318DXJHxUca00hT9StlPF-aFuz7X1EtNtr3FHxZwVnT6SLGP0oNRT5QupXBfNy60yGSKnYVeQbk9iv4D9F0y3h4Btwt2JARN-ys8svcjiQ9HEJHUdYsCd5BxpMbkpufLwaDiu4plyil45dsCQdTWpqphxFh6aVUXzpCzQqL8hRo2pZttShwBrV-FeBYsk8X3qt6hwLzVTkcrdQdYc2ya6EVsKc5vj9VObshnm1f30D4zkCzw)
 
 The marketplace uses USDC for payments and staking with bonded economic guarantees.
 
@@ -180,256 +97,85 @@ The marketplace uses USDC for payments and staking with bonded economic guarante
 
 **For GPU Owners (Sellers):**
 
-- **Earnings**: ~$0.10-0.50 per hour per GPU depending on task specialization
 - **Specialization**: Choose specific model components to specialize in
-- **Requirements**: Stake USDC as security deposit (slashed if dishonest)
+- **Requirements**: Stake SOL as security deposit (slashed if dishonest)
 - **Optimization**: Run multiple adjacent tasks for higher earnings
 
 **For AI Developers (Buyers):**
 
-- **Access**: Run 70B+ models without specialized hardware
-- **Cost**: Pay only for compute used (~$0.25-1.00 per inference)
-- **Interface**: Simple API similar to centralized alternatives
-- **Control**: Own your data and model weights
+Very cheap infrastructure, leverages underutilized compute.
 
 ---
 
-## Comparison: What Makes Us Unique
+## Comparison: What Makes Lattice Unique
 
-| Feature                   | SplitUp                       | Other Decentralized    |
-| ------------------------- | ----------------------------- | ---------------------- |
-| **Large Model Support**   | ✓ Any size via partitioning   | ✗ Limited by node VRAM |
-| **Memory Safety**         | ✓ Only tensor operations      | ✓ Limited operations   |
-| **GPU Agnosticism**       | ✓ Any GPU hardware            | ✗ Often specific GPUs  |
-| **Model Splitting**       | ✓ Automatic partitioning      | ✗ Not supported        |
-| **Verification Overhead** | ✓ Just 8% (PoSP)              | ~ Larger overheads     |
-| **Marketplace Model**     | ✓ Open on Solana              | ✓ Limited efficiency   |
-| **Flexibility**           | ✓ Any tensor DAG via TinyGrad | ✗ Limited model types  |
-| **Developer Experience**  | ✓ TinyGrad compatible         | ✗ Complex custom APIs  |
+| **Feature**             | **Lattice**                               | **Other Decentralized Platforms**    |
+|-------------------------|-------------------------------------------|--------------------------------------|
+| Large Model Support     | ✓ Any size via partitioning               | ✗ Limited by node VRAM               |
+| Memory Safety           | ✓ Only tensor operations                  | ✓ Limited operations                 |
+| GPU Agnosticism         | ✓ Works with any GPU hardware             | ✗ Often limited to specific GPUs     |
+| Model Splitting         | ✓ Automatic partitioning                  | ✗ Not supported                      |
+| Verification Overhead   | ✓ Just 8% (via PoSP)                      | ~ Higher overhead                    |
+| Marketplace Model       | ✓ Fully open on Solana                    | ✓ Less efficient                     |
+| Flexibility             | ✓ Any tensor DAG via TinyGrad             | ✗ Limited model types                |
+| Developer Experience    | ✓ TinyGrad compatible                     | ✗ Complex custom APIs                |
 
 ---
 
-## Concrete Example: Running LLaMA-70B on SplitUp
+## Concrete Example: Running LLaMA-70B on Lattice
 
 **Traditional Approach:**
 
-- Requires A100 GPU (~$10,000) or cloud instance ($2-8/hour)
-- VRAM limitation forces expensive hardware choices
+- Requires expensive A100 GPUs or high-cost cloud instances
+- VRAM constraints force costly hardware choices
 
-**SplitUp Approach:**
+**Lattice Approach:**
 
-- Model automatically partitioned into 12 tasks of ~12GB each
-- Memory-safe task definitions registered on Solana
-- Tasks distributed to specialized nodes (RTX 3060+ GPUs)
-- Results combined into complete inference output
-- Total cost: ~$0.50 per inference vs. $2+ on cloud platforms
+- Automatically partitions the LLaMA-70B model into 12 tasks (~12GB each)
+- Distributes tasks among consumer GPUs (e.g., RTX 3060+)
+- **Cost:** ~$0.50 per inference vs. $2+ on cloud platforms
 
 This makes state-of-the-art models accessible to everyone.
 
 ---
 
-## Technical Architecture
+## Technical Architecture Overview
 
-```mermaid
-flowchart TD
-    %% Client actors
-    Client[Client]
-    User[End User]
-    UC[User CLI/UI]
-    NodeUser[Node User]
-    
-    %% Model deployment tools
-    subgraph "Model Deployment"
-        DC[Deploy CLI]
-        AP[Auto-Partitioner]
-        TC[TensorContext]
-    end
-    
-    %% Oracle Committee
-    subgraph "Oracle Committee"
-        OC[Oracle Consensus]
-    end
-    
-    %% Blockchain contracts
-    subgraph "Blockchain Layer"
-        MR[Model Registry]
-        TR[Task Registry]
-        NR[Node Registry]
-        ME[Model Execution]
-        VC[Verification Contract]
-        SC[Staking Contract]
-        VRF[Verifiable Random Function]
-    end
-    
-    %% Node components
-    subgraph "SplitUp Node"
-        NM[Node CLI]
-        CF[Configuration Storage]
-        CS[Compute Service]
-        PS[Pre-loading System]
-        TL[TaskListener Service]
-        HS[Heartbeat Service]
-    end
-    
-    %% Storage
-    subgraph "Storage Layer"
-        WS[Weight Storage]
-        TS[Tensor Storage]
-    end
-    
-    %% MODEL DEPLOYMENT FLOW (RED)
-    Client -->|"Deploy model"| DC
-    DC -->|"1 - Parse Model"| TC
-    TC -->|"2 - Create Partitions"| AP
-    DC -->|"3 - Upload Weights"| WS
-    AP -->|"4 - Infer Task Definitions"| DC
-    DC -->|"5 - Register Tasks"| TR
-    DC -->|"6 - Register Model, Referencing Tasks"| MR
-    
-    %% NODE REGISTRATION FLOW (GREEN)
-    NodeUser --> NM
-    NM -->|"1 - Initial Setup"| CF
-    CF -->|"2a - Configure Model Specialization"| CS
-    CF -->|"2b - Configure Weight Management"| PS
-    NM -->|"3 - Register Node"| NR
-    NM -->|"4 - Submit Stake"| SC
-    PS <-->|"5 - Cache Model Weights"| WS
-    NM -->|"6 - Boot Up"| CS
-    CS -->|"7 - Initialize Listener"| TL
-    CS -->|"8 - Initialize Heartbeat"| HS
-    
-    %% TASK EXECUTION FLOW (BLUE)
-    User --> UC
-    UC -->|"1 - Upload Input Tensors"| TS
-    UC -->|"2 - Request Execution"| ME
-    ME -->|"3 - Chain Waits For Oracles To Pick Nodes"| OC
-    OC <-->|"4 - Oracles Confirm Task Specialization"| NR
-    OC -->|"5 - Oracles Confirm Node Selection"| ME
-    NR -->|"6 - Node Listens For Task"| TL
-    TL -->|"7 - Listener Forwards Task To GPU"| CS
-    PS -->|"8 - GPU Loads Weights And Task From Cache"| CS
-    CS -->|"9 - Store GPU Result"| TS
-    CS -->|"10 - Report Completed Computation"| ME
-    
-    %% VERIFICATION FLOW (PURPLE)
-    ME -->|"1 - Request Verification"| VC
-    VC -->|"2 - Check Verification Threshold"| VRF
-    
-    %% Normal path (92% probability)
-    VRF -->|"3a - Skip Re-computation (92%)"| VC
-    VC -->|"4a - Apply Standard Rewards"| SC
-    
-    %% Re-computation path (8% probability)
-    VRF -.->|"3b - Trigger Re-computation (8%)"| VC
-    VC -.->|"4b - Select Verifiers"| OC
-    OC -.->|"5b - Assign to Different Node"| ME
-    ME -.->|"6b - Select Different Node"| NR
-    NR -.->|"7b - Node Listens For Verification Task"| TL
-    TL -.->|"8b - Forward Verification Task"| CS
-    PS -.->|"9b - Load Weights For Verification"| CS
-    CS -.->|"10b - Store Verification Result"| TS
-    TS -.->|"11b - Compare Results"| VC
-    VC -.->|"12b - Apply Penalties/Rewards Based on Comparison"| SC
-    
-    %% HEARTBEAT/LIVENESS FLOW (ORANGE)
-    HS <-->|"1 - Report Capacity"| CS
-    HS -->|"2 - Send Heartbeats"| OC
-    OC <-->|"3 - Track Liveness"| HS
-    
-    %% CONTRACT RELATIONSHIPS (GRAY)
-    MR <-->|"Reference tasks in"| TR
-    MR <-->|"Model definition"| ME
-    TR <-->|"Task requirements"| ME
-    NR <-->|"Node selection"| ME
-    SC <-->|"Stake verification"| ME
-    VRF <-->|"Randomness service"| VC
-    
-    %% Style all relationships by flow type
-    %% Model Deployment (Red)
-    linkStyle 0,1,2,3,4,5,6 stroke:#e74c3c,stroke-width:2;
-    
-    %% Node Registration (Green)
-    linkStyle 7,8,9,10,11,12,13,14,15,16 stroke:#2ecc71,stroke-width:2;
-    
-    %% Task Execution (Blue)
-    linkStyle 17,18,19,20,21,22,23,24,25,26,27 stroke:#3498db,stroke-width:2;
-    
-    %% Verification - Normal path (Purple)
-    linkStyle 28,29,30,31 stroke:#9b59b6,stroke-width:2;
-    
-    %% Verification - Recomputation path (Purple dashed)
-    linkStyle 32,33,34,35,36,37,38,39,40,41 stroke:#9b59b6,stroke-width:2,stroke-dasharray: 5 5;
-    
-    %% Heartbeat/Liveness (Orange)
-    linkStyle 42,43,44 stroke:#e67e22,stroke-width:2;
-    
-    %% Contract Relationships (Gray)
-    linkStyle 45,46,47,48,49,50 stroke:#7f8c8d,stroke-width:2;
-    
-    %% Add a legend
-    subgraph "Legend"
-        ModelDeployment[Model Deployment Flow]:::redFlow
-        NodeRegistration[Node Registration Flow]:::greenFlow
-        TaskExecution[Task Execution Flow]:::blueFlow
-        NormalV[Normal Verification]:::purpleFlow
-        ProbV[Probabilistic Verification]:::purpleDashedFlow
-        Heartbeat[Liveness Flow]:::orangeFlow
-        ContractRelations[Contract Relationships]:::grayFlow
-    end
-    
-    classDef redFlow fill:#e74c3c,stroke:#c0392b,color:white;
-    classDef greenFlow fill:#2ecc71,stroke:#27ae60,color:white;
-    classDef blueFlow fill:#3498db,stroke:#2980b9,color:white;
-    classDef purpleFlow fill:#9b59b6,stroke:#8e44ad,color:white;
-    classDef purpleDashedFlow fill:#9b59b6,stroke:#8e44ad,color:white,stroke-dasharray: 5 5;
-    classDef orangeFlow fill:#e67e22,stroke:#d35400,color:white;
-    classDef grayFlow fill:#7f8c8d,stroke:#2c3e50,color:white;
-    
-    class ModelDeployment redFlow;
-    class NodeRegistration greenFlow;
-    class TaskExecution blueFlow;
-    class NormalV purpleFlow;
-    class ProbV purpleDashedFlow;
-    class Heartbeat orangeFlow;
-    class ContractRelations grayFlow;
-```
+[![](https://mermaid.ink/img/pako:eNp1V9tu2zgQ_RVCQIEGaNpNr2mwWECR5cRY2RZE2dmu3Adapm0isqQVqbRu03_f4UUyLal-iU2eIWfmnJlhfjppsaHOjbPNim_pnlQCxaNVjuDz4gXyMkZzgdxUFBXXq3op0X--6rUFp1Xi5xv1pVnzEvkLecHkzWJiFmdwlwLLLza6vXEKGxka0TIrjgd5d1wUmbma1-tdRco9Wjld2MrREPkZeYnekHd_Pa27YeLWorgMIUgmWJG3t8tP7CUxzXlReUUu6PcmNJpvOh7OK5JmFHnF4cCEoLTnWw9g-Tb3knY753BfzX970W1WpI9ACcslWICZ6CfCAgXkSCv7smmU6DxFdMe4qI52uFESE_44tDWLND0DW1PfnOh_p2ktc2htLr1kSSu2ZSmRO63TFgR7CRbkkeW7od1lNDYnkDVkKCL5pjigcZ2n1k39PClnIdslMJoPpCggQrCUKpydntlUx3muEm-cgGtbtqsrHQYG7ZMdtSE4kdfVgiJMqyc429oMcRJW9DIryEaGiY9c0IOd-EAlPoDUUlDgwAn3OLmnoNE1JaKz3Q_eeGfI74Z-vmvF_oCTB8p2ezEQXoxNJXT2-pdP5yM_QCM_DOZfpv4sRuNg_oBeRv7owm4W6PLyr-eVY4ryIAW0cp6hTjVo5BnAFbpEUJyc6i4gMbHBxA3mLWC8CjJDUVvHXCLdsHPaO0AuSskD0qEq2APWMDc0sPcAm-RbYELVw4huWX46tefjB4DrwjAWChZHHdhHG6aieQW_4Raap1IWreU06qoZcooi_26C48iNJ_OZSepd5Puzi_M2Ki8DGZvFqZXGiYyBZCAfUZfyHm9sGBk3iSQyk0bpJuMIlzQFM_ZDSV_Z4a7d-szOqGhKchCK7sTPUAMdl97Z6dB1-Ax9poOSVOB6DV0TyS6hQNgQEGL054kBj6T7xucBctsTJQ23RSFACGfBYLP_6ZQq9gPKxBSlojToYK_PsW2JSvA97rAYu_hv5P_jewuLwttg4V-cJqZib-E149Jiz8h2kkOPQboWtcxwB_xW5fW_mnJxaslKVr5GTn2LAU-NiQfCBEdjKG89iTiMWBSy9FERo-6ZG6fmXpN0SU0DV-RXB10vfcU0tM7tkunaqsaLaUbTrsezyOJOwTQr2mV5p81OHFhMtj0VkN9IteHaRQjvLlzY_Ic2p7CHAkg3b5SEXHjJKMtxBfNHaW1QPZ-lXqFFUnVGRHmdCZumFnj1h-KpLOB1JSdHRgXdID1DSDcBrYaWfjQZTzy7CYSLKAwaDbXcXlkqsCewPHVpqFyeNdA9BbrPhnW8ryjfF9lGGUXj3oytDtBOQiL26OXnty9QWRVrsmYZE0fjDhg1WpOtBT-yEry6TE9RKsuLQa_eSxO3LLOjLP18A-yBsSLR7gKtP52DtV_Xv3XrtfZLtq64YrsdaKTr2nXfM231XlppqZqU0apbJQb6QUJdztkuR6JAI7ZVHV-0Lc8uS23y0Tq9j29bZNTgP62HyuKcyoEa0cbX0tgUx7CNXSHa5rO0Cawp2ruwWxuvjebXbXmcXdWvk_hkdKWny6EkFTVIPkzLlRpEWjIhzUkmGOVvjGbQLeFQYeoRKs9iXLvZ09G970bxre_Gb4LJ0p_5GJtKm0fu7K6ptPt2-FxZhUxKkoLO7PDvsVVlGB5MpzHxm8b6TkmSQDkG7AmaF-eD88Sbz-A54MXwMghUQ8D3E-AIXgXul6YdRM2ZzUODIiGfGYjl9hvlhNPzc9O-eGyFxi1KdcIK2gur1IDnnW5tYEqTfKij4zZYNdXRU0c7DU5WahOBevrLbMCR6gHciMB55Rwo9CK2gf9Zf0rDlSP24NjKuYGvEAxR6lrlvwBK4P89fMxT50ZUNX3lVEW92zs3W5Jx-FWXG3hHjhiB5_KhXS1J_m9RNL9__Q9KCpA4?type=png)](https://mermaid.live/edit#pako:eNp1V9tu2zgQ_RVCQIEGaNpNr2mwWECR5cRY2RZE2dmu3Adapm0isqQVqbRu03_f4UUyLal-iU2eIWfmnJlhfjppsaHOjbPNim_pnlQCxaNVjuDz4gXyMkZzgdxUFBXXq3op0X--6rUFp1Xi5xv1pVnzEvkLecHkzWJiFmdwlwLLLza6vXEKGxka0TIrjgd5d1wUmbma1-tdRco9Wjld2MrREPkZeYnekHd_Pa27YeLWorgMIUgmWJG3t8tP7CUxzXlReUUu6PcmNJpvOh7OK5JmFHnF4cCEoLTnWw9g-Tb3knY753BfzX970W1WpI9ACcslWICZ6CfCAgXkSCv7smmU6DxFdMe4qI52uFESE_44tDWLND0DW1PfnOh_p2ktc2htLr1kSSu2ZSmRO63TFgR7CRbkkeW7od1lNDYnkDVkKCL5pjigcZ2n1k39PClnIdslMJoPpCggQrCUKpydntlUx3muEm-cgGtbtqsrHQYG7ZMdtSE4kdfVgiJMqyc429oMcRJW9DIryEaGiY9c0IOd-EAlPoDUUlDgwAn3OLmnoNE1JaKz3Q_eeGfI74Z-vmvF_oCTB8p2ezEQXoxNJXT2-pdP5yM_QCM_DOZfpv4sRuNg_oBeRv7owm4W6PLyr-eVY4ryIAW0cp6hTjVo5BnAFbpEUJyc6i4gMbHBxA3mLWC8CjJDUVvHXCLdsHPaO0AuSskD0qEq2APWMDc0sPcAm-RbYELVw4huWX46tefjB4DrwjAWChZHHdhHG6aieQW_4Raap1IWreU06qoZcooi_26C48iNJ_OZSepd5Puzi_M2Ki8DGZvFqZXGiYyBZCAfUZfyHm9sGBk3iSQyk0bpJuMIlzQFM_ZDSV_Z4a7d-szOqGhKchCK7sTPUAMdl97Z6dB1-Ax9poOSVOB6DV0TyS6hQNgQEGL054kBj6T7xucBctsTJQ23RSFACGfBYLP_6ZQq9gPKxBSlojToYK_PsW2JSvA97rAYu_hv5P_jewuLwttg4V-cJqZib-E149Jiz8h2kkOPQboWtcxwB_xW5fW_mnJxaslKVr5GTn2LAU-NiQfCBEdjKG89iTiMWBSy9FERo-6ZG6fmXpN0SU0DV-RXB10vfcU0tM7tkunaqsaLaUbTrsezyOJOwTQr2mV5p81OHFhMtj0VkN9IteHaRQjvLlzY_Ic2p7CHAkg3b5SEXHjJKMtxBfNHaW1QPZ-lXqFFUnVGRHmdCZumFnj1h-KpLOB1JSdHRgXdID1DSDcBrYaWfjQZTzy7CYSLKAwaDbXcXlkqsCewPHVpqFyeNdA9BbrPhnW8ryjfF9lGGUXj3oytDtBOQiL26OXnty9QWRVrsmYZE0fjDhg1WpOtBT-yEry6TE9RKsuLQa_eSxO3LLOjLP18A-yBsSLR7gKtP52DtV_Xv3XrtfZLtq64YrsdaKTr2nXfM231XlppqZqU0apbJQb6QUJdztkuR6JAI7ZVHV-0Lc8uS23y0Tq9j29bZNTgP62HyuKcyoEa0cbX0tgUx7CNXSHa5rO0Cawp2ruwWxuvjebXbXmcXdWvk_hkdKWny6EkFTVIPkzLlRpEWjIhzUkmGOVvjGbQLeFQYeoRKs9iXLvZ09G970bxre_Gb4LJ0p_5GJtKm0fu7K6ptPt2-FxZhUxKkoLO7PDvsVVlGB5MpzHxm8b6TkmSQDkG7AmaF-eD88Sbz-A54MXwMghUQ8D3E-AIXgXul6YdRM2ZzUODIiGfGYjl9hvlhNPzc9O-eGyFxi1KdcIK2gur1IDnnW5tYEqTfKij4zZYNdXRU0c7DU5WahOBevrLbMCR6gHciMB55Rwo9CK2gf9Zf0rDlSP24NjKuYGvEAxR6lrlvwBK4P89fMxT50ZUNX3lVEW92zs3W5Jx-FWXG3hHjhiB5_KhXS1J_m9RNL9__Q9KCpA4)
 
 ---
 
-## Hackathon Implementation
+## Hackathon Implementation: Prototype Highlights
 
 We've built a functional prototype demonstrating:
 
-- **EigenTensor integration** with memory-safe tensor operations
-- **Partitioning engine** that divides models into VRAM-constrained tasks
-- **Solana contracts** for marketplace coordination
-- **Proof of Sampling** implementation (8% verification)
-- **Economic model** for staking and payments
+- EigenTensor integration for memory-safe tensor operations
+- Developed a partitioning engine to break models into VRAM-friendly tasks
+- Deployed Solana contracts for marketplace coordination
+- Implemented Proof of Sampling (8% verification) for efficient validation
+- Built an economic model for staking and payments
 
-Demo: Partitioning LLaMA-70B for execution across consumer GPUs
+**Demo:** Partitioned MNIST for distributed execution across consumer GPUs
 
 ---
 
 ## Join Our Marketplace
 
-**For AI Developers**:
+**For AI Developers:**
+- Run large models without upfront hardware investments
+- Pay only for the compute used
+- Use a simple API for seamless integration
 
-- Access large models without expensive hardware
-- Pay only for what you use, no upfront costs
-- Simple API for model execution
-
-**For GPU Owners**:
-
-- Earn USDC by joining our compute marketplace
+**For GPU Owners:**
+- Earn SOL by contributing idle GPU power
 - Specialize in high-demand model components
-- Low barrier to entry with consumer hardware
+- Enter a secure, low-barrier marketplace
 
-GitHub: github.com/splitup/splitup
 
 ---
 
 ## Thank You
 
-**SplitUp: The Solana-powered Marketplace for Distributed AI Computation**
+**Lattice: The Solana-powered Marketplace for Distributed AI Computation**
 
 [Created for a 2025 AI + Web3 Hackathon]
