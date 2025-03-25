@@ -17,7 +17,7 @@ def DefaultConfig() -> SystemConfig:
         app_name="state-service",
         log_level="INFO",
         api_port=8000,
-        notification_url="http://localhost:8001/notify"
+        notification_url="http://localhost:8001/notify",
     )
 
 
@@ -34,4 +34,4 @@ class SystemConfigUpdateRequest(BaseModel):
 class ErrorResponse(BaseModel):
     """Response model for errors."""
 
-    error: str 
+    error: str

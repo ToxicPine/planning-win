@@ -1,5 +1,15 @@
 # SplitUp: A Low-Latency Decentralized System for Large-Scale AI Inference
 
+TODO: discuss looping over tokens automatically, plan optimizations for this, ensure that there are no incentives for nodes to lie about final result tensors in an attempt to extend the output sequence length.
+
+This design also allows a lot of latency to be bypassed, since oracles may pick nodes that specialize in multiple tasks of the same model simultaneously, thus preventing the need to shuttle tensors between devices every single time. We need to consider the implications of this and make them clearer in the document.
+
+We must also determine the best mechanism for dynamic pricing, allocating nodes which can run many tasks of the model rapidly and at once to those who pay more whilst creating cost savings for those who can wait.
+
+We must also discuss the design of the oracle committee, how it might form their expectations about how long each node will take to complete a task, how this determines their choices, the impact of networking latency and bandwidth, etcetera.
+
+We must also consider LLM batch execution strategies, etc, and how these factors intersect with our current design.
+
 ## 1. The Core Problem
 
 Modern AI models like LLaMA-70B require 80-140GB of VRAM (Video RAM on graphics cards), but consumer GPUs typically only have 8-24GB. This creates a fundamental limitation: even if you have a powerful consumer GPU, you simply can't run these large models on your hardware. To overcome this limitation, we need to distribute model execution across multiple devices, but doing so efficiently presents significant challenges.

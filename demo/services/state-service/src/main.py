@@ -128,7 +128,9 @@ class ConfigService:
             self.logger.error(config_result.error)
             return create_failure(config_result.error)
 
-        return await notify_config_change(config_result.data, self.notification_url, self.logger)
+        return await notify_config_change(
+            config_result.data, self.notification_url, self.logger
+        )
 
 
 # Application setup
@@ -137,6 +139,7 @@ app = FastAPI(title="State Service API")
 # Store environment config at app state level
 app.state.env_config = None
 
+
 # Dependency to get notification URL
 def get_notification_url():
     """Get Notification URL From Environment Configuration."""
@@ -144,10 +147,11 @@ def get_notification_url():
         raise RuntimeError("Environment Configuration Not Initialized")
     return app.state.env_config.SPLITUP_STATE_SERVICE_NOTIFICATION_URL
 
+
 # Dependency for config service
 def get_config_service(
     logger: logging.Logger = Depends(get_logger),
-    notification_url: str = Depends(get_notification_url)
+    notification_url: str = Depends(get_notification_url),
 ) -> ConfigService:
     """Get The Configuration Service Instance."""
     return ConfigService(logger, notification_url)
@@ -201,7 +205,9 @@ def main():
     app.state.env_config = env_result.data
 
     # Set Up Logger
-    logger = setup_logger("state-service", app.state.env_config.SPLITUP_STATE_SERVICE_LOG_LEVEL)
+    logger = setup_logger(
+        "state-service", app.state.env_config.SPLITUP_STATE_SERVICE_LOG_LEVEL
+    )
     logger.info("Starting State Service")
 
     # Ensure Config Directory And File
@@ -220,7 +226,9 @@ def main():
     logger.info(
         f"Starting API Server on Port {app.state.env_config.SPLITUP_STATE_SERVICE_API_PORT}"
     )
-    uvicorn.run(app, host="0.0.0.0", port=app.state.env_config.SPLITUP_STATE_SERVICE_API_PORT)
+    uvicorn.run(
+        app, host="0.0.0.0", port=app.state.env_config.SPLITUP_STATE_SERVICE_API_PORT
+    )
 
 
 if __name__ == "__main__":
