@@ -185,7 +185,7 @@ The security of this scheme depends on the capacity of Oracle Committee, who det
 
 This graph-based approach provides several critical advantages:
 
-1. **Memory safety** - No arbitrary code execution, only predefined tensor operations permitted by the compiler
+1. **Memory safety** - No arbitrary code execution, only predefined operations permitted by the compiler
 2. **Cross-platform compatibility** - Same graph runs on any GPU architecture
 3. **Optimization opportunities** - Compiler can perform kernel fusion, operation reordering
 
