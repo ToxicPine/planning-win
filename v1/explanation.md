@@ -8,6 +8,8 @@ We must also determine the best mechanism for dynamic pricing, allocating nodes 
 
 We must also discuss the design of the oracle committee, how it might form their expectations about how long each node will take to complete a task, how this determines their choices, the impact of networking latency and bandwidth, etcetera.
 
+We must also consider ensuring that KV cache does not move, we don't need to regenerate the whole thing from scratch when we iterate through tokens.
+
 We must also consider LLM batch execution strategies, etc, and how these factors intersect with our current design.
 
 ## 1. The Core Problem
