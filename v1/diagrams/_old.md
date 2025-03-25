@@ -16,7 +16,7 @@ sequenceDiagram
     SE -->>- OC: "SUCCESS()"
     OC -->>- ME: "SUCCESS(assignments: Dict<TaskID, { node_id: NodeID, task_instance: TaskExecutionID }>, task_data: Dict<TaskExecutionID, { input_key: S3Key, output_key: S3Key }> execution_id: ModelExecutionID, auth_token: Signature<Ed25519>)"
 
-    par 
+    par
         loop "for assigned_task in output_assignments.keys"
             ME ->> ND: "NOTIFY(assigned_task.node_id: NodeID, { execution_id: ExecutionID, assigned_task.input_key: S3Key, assigned_task.output_key: S3Key })"
         end
