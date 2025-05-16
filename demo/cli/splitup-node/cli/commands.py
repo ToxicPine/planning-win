@@ -13,22 +13,22 @@ from tinygrad.dtype import dtypes
 from tinygrad.engine import schedule
 from tinygrad.helpers import Context
 
-LATTICE_LOGO = """
-██▓    ▄▄▄     ▄▄▄█████▓▄▄▄█████▓ ██▓ ▄████▄  ▓█████ 
-▓██▒   ▒████▄   ▓  ██▒ ▓▒▓  ██▒ ▓▒▓██▒▒██▀ ▀█  ▓█   ▀ 
-▒██░   ▒██  ▀█▄ ▒ ▓██░ ▒░▒ ▓██░ ▒░▒██▒▒▓█    ▄ ▒███   
-▒██░   ░██▄▄▄▄██░ ▓██▓ ░ ░ ▓██▓ ░ ░██░▒▓▓▄ ▄██▒▒▓█  ▄ 
-░██████▒▓█   ▓██▒ ▒██▒ ░   ▒██▒ ░ ░██░▒ ▓███▀ ░░▒████▒
-░ ▒░▓  ░▒▒   ▓▒█░ ▒ ░░     ▒ ░░   ░▓  ░ ░▒ ▒  ░░░ ▒░ ░
-░ ░ ▒  ░ ▒   ▒▒ ░   ░        ░     ▒ ░  ░  ▒    ░ ░  ░
-  ░ ░    ░   ▒    ░        ░       ▒ ░░           ░   
-    ░  ░     ░  ░                  ░  ░ ░         ░  ░
-                                      ░
+TESSERA_LOGO = """
+▄▄▄█████▓▓█████   ██████   ██████ ▓█████  ██▀███   ▄▄▄      
+▓  ██▒ ▓▒▓█   ▀ ▒██    ▒ ▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒▒████▄    
+▒ ▓██░ ▒░▒███   ░ ▓██▄   ░ ▓██▄   ▒███   ▓██ ░▄█ ▒▒██  ▀█▄  
+░ ▓██▓ ░ ▒▓█  ▄   ▒   ██▒  ▒   ██▒▒▓█  ▄ ▒██▀▀█▄  ░██▄▄▄▄██ 
+  ▒██▒ ░ ░▒████▒▒██████▒▒▒██████▒▒░▒████▒░██▓ ▒██▒ ▓█   ▓██▒
+  ▒ ░░   ░░ ▒░ ░▒ ▒▓▒ ▒ ░▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ▒▓ ░▒▓░ ▒▒   ▓▒█░
+    ░     ░ ░  ░░ ░▒  ░ ░░ ░▒  ░ ░ ░ ░  ░  ░▒ ░ ▒░  ▒   ▒▒ ░
+  ░         ░   ░  ░  ░  ░  ░  ░     ░     ░░   ░   ░   ▒   
+            ░  ░      ░        ░     ░  ░   ░           ░  ░
+                                                            
 """
 
 def print_header():
-    """Print the Lattice logo and header."""
-    click.echo(click.style(LATTICE_LOGO, fg="red"))
+    """Print the Tessera logo and header."""
+    click.echo(click.style(TESSERA_LOGO, fg="red"))
     click.echo(click.style("=" * 80, fg="blue"))
     click.echo(click.style("SplitUp Node Management CLI", fg="green", bold=True))
     click.echo(click.style("=" * 80, fg="blue"))
